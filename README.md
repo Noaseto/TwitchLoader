@@ -1,64 +1,51 @@
-# Dusklight Mod Template
+A mod by human for human, I do not like the usage of generative AIs. Also, we stand for Trans people right :3
 
-A standalone template for [Dusklight](https://github.com/TwilitRealm/dusklight) mods.
+# TwitchLoader Mod
 
-See the [Dusklight modding documentation](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md)
-for the full mod API: services, hooking game functions, asset overlays, and more.
+A [Dusklight](https://github.com/TwilitRealm/dusklight) mod.
+Provides a service to link dusklight with twitch events (with oauth token and with websockets) to be used with others for gameplay 
 
 ## Quick start
 
-1. Click "Use this template" to create a new repository for your mod.
-2. Edit `mod.json`: set your mod's `id` (reverse-DNS style, e.g. `com.example.my_mod`),
-   `name`, `author`, and `description`.
-3. Rename the target in `CMakeLists.txt` (`add_mod(my_mod ...)`) (this names the `.dusk` file).
-4. Write your mod in `src/mod.cpp`.
-5. Build locally:
+See [mod-template](https://github.com/TwilitRealm/mod-template) for further documentation
+
+## Building
+
+As of right now, I work with linux with distrobox, ubuntu v24, since most tutorial will be ubuntu compliant. Sorry fellow people on mac and windows, I might update this later.
+(It could be as straightforward as following dusklight main documentation for building and then adapting the few more needed here)
+
    ```sh
+   distrobox create -i ubuntu:24.04 -n ubuntu-box
+   distrobox enter ubuntu-box
+   
+   # Follow dusklight main repo documentation
+   
+   # then for building this mod specifically, it needs libraries to communicate with websocket in ssl
+   sudo apt install libboost-dev libboost-system-dev libssl-dev
+
+   # and then simply build it :)
    cmake -B build
    cmake --build build
    ```
 
-The result is `build/mods/<name>.dusk`. Copy it into the game's mods folder to try it:
+## Disclaimer
 
-- Windows: `%APPDATA%\TwilitRealm\Dusklight\mods`
-- Linux: `~/.local/share/TwilitRealm/Dusklight/mods`
-- macOS: `~/Library/Application Support/TwilitRealm/Dusklight/mods`
+I am using [Boost's beast library](https://github.com/boostorg/boost) for the websockets and I have absolutely no clue how license works, please do tell me if I'm doing anything forbidden. Also, feel free to use this mod as a base for twitch integration.
+I like sequence diagrams, they help to properly visualize behaviors of what's happening in the code.
 
-During development, rebuild, copy and click **Reload** in the in-game mod manager to pick up changes.
+## TODOs
 
-> [!IMPORTANT]
-> A mod built locally will only be valid for your own platform, and shouldn't be distributed.
-> The repository will build a [cross-platform bundle](#github-actions) for distribution. See below.
+- First line
+- clear the code of all the example and be as concise as possible (the template is still there)
+- create sequence diagrams for what I expect of this mod to become
+- define a convention for versioning of the mod (most probably x.y.z : x major and breaks the service contract, y minor no modification of naming functions nor main behavior, z hotfixes typo etc)
 
-## Updating to a new Dusklight version
+## My other mods to be used with TwitchLoader
 
-Change the `DUSKLIGHT_VERSION` line in `CMakeLists.txt` to the new release tag (or commit hash) and reconfigure. The
-pinned version is fetched into `dusklight/` automatically. Use the `dusklight/` checkout to browse game code, headers
-and mod services.
+The first one will simply be notifications and a proof of concept for what can be achieved.
+However, they will both live for the few firsts commits
 
-> [!IMPORTANT]
-> The Dusklight checkout is for **reference only**. Mods use
-> [services](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md#built-in-services) and
-> [hooks](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md#hooking-game-functions) to interact with
-> game code.
+## Anything else 
 
-## GitHub Actions
-
-The included GitHub Actions workflow builds the mod for the following platforms:
-- Windows (AMD64 & ARM64)
-- macOS (Apple Silicon & Intel)
-- iOS (Apple Silicon)
-- Linux (x86_64 & aarch64)
-- Android (aarch64)
-
-It then merges the per-platform builds into a single `.dusk` supporting all platforms. (Artifact `mod-combined`) 
-
-Pushing a tag to the repository creates a GitHub release with the combined bundle.
-
-## For Dusklight developers
-
-Point the build at an existing checkout instead of fetching one:
-
-```sh
-cmake -B build -DDUSKLIGHT_DIR=~/path/to/dusklight
-```
+I am open to suggestions, questions, feel free to ask with an issue.
+It is possible that I forgot stuffs, it will come at a later date :>
