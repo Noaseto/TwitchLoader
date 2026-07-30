@@ -1,0 +1,63 @@
+@startuml
+' members definition
+participant ConfigFile as cf
+box TwitchLoader
+    participant main as main
+    participant websocket as ws
+    participant listeners as navi
+    box listenerMods
+        participant listenerMain as naviMain
+    end box
+end box
+participant TwitchApi as api
+participant Dusklight as dusk
+
+
+' init
+main -> main: initMod
+activate main
+    main -> cf : read settings.conf
+    cf --> main : oauth key
+    main -> ws: init socket
+    ws -> api: boop
+    api --> ws:
+    ws --> main:
+
+naviMain -> main: registerListener
+note left of naviMain: is it in init or via the serviceContext ?
+main --> naviMain
+
+deactivate main
+
+
+
+' update
+main -> main: updateMod
+activate main
+    api -> ws: TwitchEvent (async, could happen at any time)
+    ws -> ws: queue.add(event)
+    main -> navi: if queue != empty
+    navi -> navi: heyListen(TwitchEvent)
+    activate navi
+        loop for each listener
+            navi -> naviMain: heyListen(TwitchEvent)
+            activate naviMain
+                naviMain -> dusk: stuff specific to this given mod
+                dusk --> naviMain:
+            deactivate naviMain
+            naviMain-->navi
+        end
+    deactivate navi
+    navi --> main:
+    main -> main: queue->pop()
+    note over main: the above arrow should be on the bar
+deactivate main
+
+' destroy
+main -> main: shutdownMod
+activate main
+    main->main:stop socket's thread
+    main->main: delete socket
+deactivate main
+note over main: the above arrow should be on the bar
+@enduml

@@ -5,6 +5,11 @@ A mod by human for human, I do not like the usage of generative AIs. Also, we st
 A [Dusklight](https://github.com/TwilitRealm/dusklight) mod.
 Provides a service to link dusklight with twitch events (with oauth token and with websockets) to be used with others for gameplay 
 
+![sequenceDiagram.png](docs/sequenceDiagram.png)
+This is approximately how I see TwitchLoader and how others go with it.
+must read the [export service documentation](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md#exporting-services) before doing more on the diagram
+
+
 ## Quick start
 
 See [mod-template](https://github.com/TwilitRealm/mod-template) for further documentation
