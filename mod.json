@@ -1,7 +1,7 @@
 {
-  "id": "com.example.my_mod",
-  "name": "My Mod",
-  "version": "1.0.0",
-  "author": "You",
-  "description": "An example Dusklight mod"
+  "id": "io.github.noaseto.twitchloader",
+  "name": "Twitch Loader",
+  "version": "0.0.1",
+  "author": "Noaseto",
+  "description": "Links to Twitch and provides service for any Twitch events occurring (follow, subs, in chat message, channel point reward, ...)"
 }
