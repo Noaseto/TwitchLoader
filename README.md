@@ -7,8 +7,10 @@ Provides a service to link dusklight with twitch events (with oauth token and wi
 
 ![sequenceDiagram.png](docs/sequenceDiagram.png)
 This is approximately how I see TwitchLoader and how others go with it.
-must read the [export service documentation](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md#exporting-services) before doing more on the diagram
 
+Must read the [export service documentation](https://github.com/TwilitRealm/dusklight/blob/main/docs/modding.md#exporting-services) before doing more on the diagram
+
+There is a video of what it's doing at the moment in docs, I need to clean the code and remove the get started of Boost's beast that exists on my machine. Please note that the fact twitch is interacting with dusklight is not the behavior intended, and I should have 2 mods for the exact same behavior.
 
 ## Quick start
 
