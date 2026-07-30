@@ -50,7 +50,7 @@ I like sequence diagrams, they help to properly visualize behaviors of what's ha
 ## My other mods to be used with TwitchLoader
 
 The first one will simply be notifications and a proof of concept for what can be achieved.
-However, they will both live for the few firsts commits
+However, they will both live here for the first few commits
 
 ## Anything else 
 
