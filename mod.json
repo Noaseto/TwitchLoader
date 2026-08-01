@@ -1,7 +1,7 @@
 {
   "id": "io.github.noaseto.twitchloader",
   "name": "Twitch Loader",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Noaseto",
   "description": "Links to Twitch and provides service for any Twitch events occurring (follow, subs, in chat message, channel point reward, ...)"
 }
