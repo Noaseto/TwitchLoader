@@ -16,10 +16,17 @@ add_mod(twitch_loader
         RES_DIR res            # mod resources, including icon.png and banner.png
 )
 
-# Unsure of how to declare those
-set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS system)
-target_link_libraries(twitch_loader PRIVATE Boost::system)
+include(FetchContent)
+set(BUILD_SHARED_LIBS OFF)
+set(BOOST_INCLUDE_LIBRARIES beast asio system)
+set(BOOST_ENABLE_CMAKE ON)
+FetchContent_Declare(
+        Boost
+        URL https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-cmake.tar.xz
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
+)
+FetchContent_MakeAvailable(Boost)
+target_link_libraries(twitch_loader PRIVATE Boost::beast Boost::asio Boost::system)
 
 find_package(Threads REQUIRED)
 target_link_libraries(twitch_loader PRIVATE Threads::Threads)
