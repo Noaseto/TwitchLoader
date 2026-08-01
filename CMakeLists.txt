@@ -28,6 +28,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Boost)
 target_link_libraries(twitch_loader PRIVATE Boost::beast Boost::asio Boost::system)
 
+FetchContent_Declare(
+        nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        DOWNLOAD_EXTRACT_TIMESTAMP ON
+)
+FetchContent_MakeAvailable(nlohmann_json)
+target_link_libraries(twitch_loader PRIVATE nlohmann_json::nlohmann_json)
+
 find_package(Threads REQUIRED)
 target_link_libraries(twitch_loader PRIVATE Threads::Threads)
 
