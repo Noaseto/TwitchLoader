@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 
+// todo, in java there is javadoc, python docstring what is the equivalent in c/cpp
+// -> create doc
+
 // see https://dev.twitch.tv/docs/eventsub/websocket-reference/
 enum class TwitchEventType {
     ChatMessage,
@@ -10,7 +13,7 @@ enum class TwitchEventType {
     Cheer,
     SessionWelcome,
     Unknown, // bruh
-    ERROR
+    TwitchEventError // do not name this only error in capital, windows compiler does not like
     // todo some ideas to add: Raid, prediction, channel point reward
 };
 

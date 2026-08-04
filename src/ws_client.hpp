@@ -1,3 +1,6 @@
+// todo
+// nothing but this file should depend on beast, everybody else should be agnostic of the communication protocol
+
 #pragma once
 
 #include <boost/beast/core.hpp>
@@ -196,10 +199,10 @@ private:
                 push(type, data);
             }
 
-        } catch (std::exception const& e) {
+        } catch (std::exception const& exception) {
             m_socket_ptr = nullptr;
             if (m_running) {
-                push(TwitchEventType::ERROR, std::string("ERROR: ") + e.what());
+                push(TwitchEventType::TwitchEventError, std::string("ERROR: ") + exception.what());
             }
         }
     }

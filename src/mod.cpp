@@ -6,7 +6,6 @@
 #include "mods/service.hpp"
 #include "mods/svc/log.h"
 #include "mods/svc/ui.h"
-#include "mods/svc/resource.h"
 
 // custom service
 #include "twitchStuff/twitchData.h"
@@ -16,42 +15,14 @@
 #include "ws_client.hpp"
 #include "nlohmann/json.hpp"
 
+// custom definiton of menu
+#include "panelMaganement.h"
+
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);
-IMPORT_SERVICE(ResourceService, svc_resource);
 
 extern "C" {
 static WsClient g_ws;
-
-struct Credentials {
-    std::string clientId, oauth, username, userId;
-};
-
-bool load_credentials(Credentials& out) {
-    ResourceBuffer buf = RESOURCE_BUFFER_INIT;
-    // todo : do i really need a dedicated config file ? could it not simply exist in the dusklight config file ? and how do i store the authkey securely
-    if (svc_resource->load(mod_ctx, "twitch_credentials.config", &buf) != MOD_OK) {
-        return false;
-    }
-    std::string content(reinterpret_cast<const char*>(buf.data), buf.size);
-    svc_resource->free(mod_ctx, &buf);
-
-    std::istringstream iss(content);
-    std::string line;
-    // found this readfile on stackoverflow, i dislike that
-    // in my head .config files could be read with loadValue("key", "default") todo find if it exists in cpp
-    while (std::getline(iss, line)) {
-        auto pos = line.find('=');
-        if (pos == std::string::npos) continue;
-        std::string key = line.substr(0, pos);
-        std::string val = line.substr(pos + 1);
-        if (key == "clientId") out.clientId = val;
-        else if (key == "oauth") out.oauth = val;
-        else if (key == "username") out.username = val;
-        else if (key == "userId") out.userId = val;
-    }
-    return true;
-}
 
 #include <optional>
 
@@ -72,15 +43,36 @@ std::optional<ChatMessage> parse_message(const std::string& raw) {
     }
 }
 
+std::string get_string_option(ConfigVarHandle handle) {
+    // todo check get_string return (ModResult) to add robustness
+    size_t handleSize;
+    svc_config->get_string(mod_ctx, handle, NULL, 0, &handleSize);
+
+    std::string handleValue(handleSize, '\0');
+    svc_config->get_string(mod_ctx,handle,handleValue.data(), handleSize+1, NULL);
+
+    svc_log->debug(mod_ctx, handleValue.data());
+    return handleValue;
+}
+
 MOD_EXPORT ModResult mod_initialize(ModError* error) {
-
-    Credentials credentials;
-
-    // todo everything here should be define as const at the head of this file (do i need data across several files ? if so, dedicated const files maybe)
-    if (!load_credentials(credentials)) {
-        return mods::set_error(error, MOD_ERROR, "res/twitch_credentials.config introuvable ou invalide");
+    // set config var
+    ModResult result = registerVariables(error);
+    if (result != MOD_OK) {
+        return result;
     }
-    g_ws.start("eventsub.wss.twitch.tv", "443", credentials.clientId, credentials.oauth, credentials.username, credentials.userId);
+
+    // init mod view menu
+    UiModsPanelDesc panelDesc = UI_MODS_PANEL_DESC_INIT;
+    panelDesc.build = buildMainPanel;
+    svc_ui->register_mods_panel(mod_ctx, &panelDesc);
+
+    // todo launch the websocket, should be via auto start value or the button on menu
+    g_ws.start("eventsub.wss.twitch.tv", "443",
+        get_string_option(g_cvarClientId),
+        get_string_option(g_cvarOAuth),
+        get_string_option(g_cvarUsername),
+        get_string_option(g_cvarTwitchId));
 
     svc_log->info(mod_ctx, "twitch loader started");
     return MOD_OK;
@@ -93,7 +85,8 @@ struct OwnedChatEvent {
 };
 
 // todo
-// this was an exemple provided by encounter, i messed around a bit, i will rework it
+// this was an exemple provided by encounter, i messed around a bit, i will rework it as i don't want to snd 2 strings
+// but the TwitchEvent struct, they use the size of struct as 1st param, should I do the same
 // These events hold the `std::string` instances
 static std::vector<OwnedChatEvent> ownedEvents;
 // These events simply hold `char*` pointers to the `std::string`s
@@ -143,6 +136,11 @@ MOD_EXPORT ModResult mod_update(ModError* error) {
             auto chat = parse_message(twitchEvent.data);
             add_chat_event(chat->user.c_str(), chat->text.c_str());
         }
+        if (twitchEvent.type == TwitchEventType::Follow) {
+            // tmp check with friends, that one works, unfollow refollow too
+            // TODO do the payload provide refollow ? or should it be linked with api calls, if so, update the Twitch loader too ?
+            svc_log->info(mod_ctx, "+1 follow");
+        }
 
         // sorry I ignored subs and follow >':
         // todo : think about subs and follow
@@ -154,6 +152,8 @@ MOD_EXPORT ModResult mod_update(ModError* error) {
 }
 
 MOD_EXPORT ModResult mod_shutdown(ModError*) {
+    // todo properly disconnect from twitch
+    // I'm pretty (nice) sure that as of right now, reloading the mod ends up in memory leak
     g_ws.stop();
     svc_log->info(mod_ctx, "WebSocket client stopped");
     return MOD_OK;

@@ -13,9 +13,9 @@ add_subdirectory("${DUSKLIGHT_DIR}/sdk" dusklight-sdk EXCLUDE_FROM_ALL)
 add_mod(twitch_loader
         SOURCES src/mod.cpp
         MOD_JSON mod.json
-        RES_DIR res            # mod resources, including icon.png and banner.png
 )
 
+# there arne not enough fetched content for all build (android and ios missing ssl libs)
 include(FetchContent)
 set(BUILD_SHARED_LIBS OFF)
 set(BOOST_INCLUDE_LIBRARIES beast asio system)
