@@ -6,15 +6,11 @@
 #include "mods/service.hpp"
 #include "mods/svc/ui.h"
 #include "mods/svc/config.h"
+#include "constants/internationalisation.h"
+#include "configVar.h"
 #include "ws_client.hpp"
 
 inline UiWindowHandle g_controlsWindow = 0;
-
-inline ConfigVarHandle g_cvarUsername = 0;
-inline ConfigVarHandle g_cvarTwitchId = 0;
-inline ConfigVarHandle g_cvarClientId = 0;
-inline ConfigVarHandle g_cvarOAuth = 0;
-inline ConfigVarHandle g_cvarAutoStart = 0;
 
 IMPORT_SERVICE(UiService, svc_ui);
 IMPORT_SERVICE(ConfigService, svc_config);
@@ -43,64 +39,27 @@ void add_string(UiElementHandle pane, const char* label, ConfigVarHandle cvar, c
     add_control(pane, control);
 }
 
-ModResult register_string_option(
-    const char* name, char* defaultValue, ConfigVarHandle& outHandle, ModError* error) {
-    ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
-    cvarDesc.name = name;
-    cvarDesc.type = CONFIG_VAR_STRING;
-    cvarDesc.default_string = defaultValue;
-    if (svc_config->register_var(mod_ctx, &cvarDesc, &outHandle) != MOD_OK) {
-        return mods::set_error(error, MOD_ERROR, "failed to register twitch loader options");
-    }
-    return MOD_OK;
+void onToggleSocket(ModContext*, void*) {
+    g_ws.toggleSocket();
 }
 
-ModResult register_bool_option(
-    const char* name, bool defaultValue, ConfigVarHandle& outHandle, ModError* error) {
-    ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
-    cvarDesc.name = name;
-    cvarDesc.type = CONFIG_VAR_BOOL;
-    cvarDesc.default_bool = defaultValue;
-    if (svc_config->register_var(mod_ctx, &cvarDesc, &outHandle) != MOD_OK) {
-        return mods::set_error(error, MOD_ERROR, "failed to register twitch loader options");
-    }
-    return MOD_OK;
-}
-
-inline ModResult registerVariables(ModError* error) {
-    ModResult result = register_string_option("username", "twitch username", g_cvarUsername, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_string_option("twitchId", "twitch id", g_cvarTwitchId, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_string_option("twitchClientId", "clientId", g_cvarClientId, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_string_option("twitchOAuth", "OAuthToken", g_cvarOAuth, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_bool_option("g_cvarAutoStart", false, g_cvarAutoStart, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    return result;
-}
 
 inline ModResult buildTwitchConfigTab(
     ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
     (void)right;
-    svc_ui->pane_add_section(mod_ctx, left, "Twitch config");
-    add_string(left, "Username", g_cvarUsername, "Your twitch username");
-    add_string(left, "Twitch ID", g_cvarTwitchId, "Twitch id");
+    svc_ui->pane_add_section(mod_ctx, left, TWITCH_SECTION_NAME.data());
+    add_string(left, TWITCH_USERNAME.data(), g_cvarUsername, TWITCH_USERNAME_DESCRIPTION.data());
+    add_string(left, TWITCH_USER_ID.data(), g_cvarTwitchId, TWITCH_USER_ID_DESCRIPTION.data());
 
-    svc_ui->pane_add_section(mod_ctx, left, "Check actions");
-    //add_button(left, "Enabled", "Enables dynamic shadows.");
-    add_toggle(left, "AutoStart", g_cvarAutoStart, "Should the twitch communication start at dusklight launch");
+    svc_ui->pane_add_section(mod_ctx, left, ACTIONS_SECTION_NAME.data());
+    add_toggle(left, ACTIONS_AUTO_START.data(), g_cvarAutoStart, ACTIONS_AUTO_START_DESCRIPTION.data());
+
+    UiControlDesc startWebsocketControl = UI_CONTROL_DESC_INIT;
+    startWebsocketControl.kind = UI_CONTROL_BUTTON;
+    startWebsocketControl.label = ACTIONS_TOGGLE.data();
+    startWebsocketControl.help_rml = ACTIONS_TOGGLE_DESCRIPTION.data();
+    startWebsocketControl.on_pressed = onToggleSocket;
+    add_control(left, startWebsocketControl);
 
     return MOD_OK;
 }
@@ -109,8 +68,8 @@ inline ModResult buildTwitchSecretTab(
     ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
     (void)right;
     svc_ui->pane_add_section(mod_ctx, left, "Secret");
-    add_string(left, "Client ID", g_cvarClientId, "client id twitch app");
-    add_string(left, "OAuth token", g_cvarOAuth, "token");
+    add_string(left, SECRETS_CLIENT_ID.data(), g_cvarClientId, SECRETS_CLIENT_ID_DESCRIPTION.data());
+    add_string(left, SECRETS_OAUTH_TOKEN.data(), g_cvarOAuth, SECRETS_OAUTH_TOKEN_DESCRIPTION.data());
 
     return MOD_OK;
 }
@@ -120,38 +79,25 @@ inline void onOpenModConfig(ModContext*, void*) {
         return;
     }
     UiTabDesc tabs[2] = {UI_TAB_DESC_INIT, UI_TAB_DESC_INIT};
-    tabs[0].title = "Twitch config";
+    tabs[0].title = TWITCH_CONFIG_TAB.data();
     tabs[0].build = buildTwitchConfigTab;
-    tabs[1].title = "Twitch secrets";
+    tabs[1].title = TWITCH_SECRETS_TAB.data();
     tabs[1].build = buildTwitchSecretTab;
     UiWindowDesc desc = UI_WINDOW_DESC_INIT;
     desc.tabs = tabs;
     desc.tab_count = 2;
     desc.on_closed = [](ModContext*, UiWindowHandle, void*) {g_controlsWindow = 0;};
     if (svc_ui->window_push(mod_ctx, &desc, &g_controlsWindow) != MOD_OK) {
-        svc_log->error(mod_ctx, "failed to open twitch loader secrets window");
+        svc_log->error(mod_ctx, TWITCH_LOADER_PANE_FAILED.data());
     }
 }
 
 inline ModResult buildMainPanel(ModContext*, UiElementHandle panel, void*, ModError*) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
-    control.label = "Configure Mod";
+    control.label = TWITCH_LOADER_OPTIONS_BUTTON.data();
     control.kind = UI_CONTROL_BUTTON;
     control.on_pressed = onOpenModConfig;
     add_control(panel, control);
-    //
-    // control = UI_CONTROL_DESC_INIT;
-    // control.kind = UI_CONTROL_BUTTON;
-    // control.label = "Test connection";
-    // control.on_pressed = [](ModContext*, void*){};
-    // add_control(panel, control);
-    // // could i add some text to view the return of the onPressed action ?
-    //
-    // control = UI_CONTROL_DESC_INIT;
-    // control.kind = UI_CONTROL_BUTTON;
-    // control.label = "Start/Stop Twitch connection";
-    // control.on_pressed = [](ModContext*, void*){};
-    // add_control(panel, control);
 
     return MOD_OK;
 }

@@ -16,13 +16,14 @@
 #include "nlohmann/json.hpp"
 
 // custom definiton of menu
+#include "configVar.h"
 #include "panelMaganement.h"
 
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);
 
+WsClient g_ws;
 extern "C" {
-static WsClient g_ws;
 
 #include <optional>
 
@@ -43,17 +44,6 @@ std::optional<ChatMessage> parse_message(const std::string& raw) {
     }
 }
 
-std::string get_string_option(ConfigVarHandle handle) {
-    // todo check get_string return (ModResult) to add robustness
-    size_t handleSize;
-    svc_config->get_string(mod_ctx, handle, NULL, 0, &handleSize);
-
-    std::string handleValue(handleSize, '\0');
-    svc_config->get_string(mod_ctx,handle,handleValue.data(), handleSize+1, NULL);
-
-    svc_log->debug(mod_ctx, handleValue.data());
-    return handleValue;
-}
 
 MOD_EXPORT ModResult mod_initialize(ModError* error) {
     // set config var
@@ -67,14 +57,10 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
     panelDesc.build = buildMainPanel;
     svc_ui->register_mods_panel(mod_ctx, &panelDesc);
 
-    // todo launch the websocket, should be via auto start value or the button on menu
-    g_ws.start("eventsub.wss.twitch.tv", "443",
-        get_string_option(g_cvarClientId),
-        get_string_option(g_cvarOAuth),
-        get_string_option(g_cvarUsername),
-        get_string_option(g_cvarTwitchId));
+    // at startup, thread is not running, the toggle will launch the start
+    if (get_bool_option(g_cvarAutoStart, false)) g_ws.toggleSocket();
 
-    svc_log->info(mod_ctx, "twitch loader started");
+    svc_log->info(mod_ctx, LOG_INIT_SUCCESS.data());
     return MOD_OK;
 }
 

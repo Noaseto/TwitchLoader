@@ -17,6 +17,9 @@
 #include <string>
 #include "twitchStuff/twitchData.h"
 
+#include "constants/internationalisation.h"
+#include "configVar.h"
+
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
 namespace http = beast::http;
@@ -27,8 +30,21 @@ using tcp = boost::asio::ip::tcp;
 
 class WsClient {
 public:
+    void toggleSocket() {
+        if (!m_running) {
+            start("eventsub.wss.twitch.tv", "443",
+        get_string_option(g_cvarClientId),
+        get_string_option(g_cvarOAuth),
+        get_string_option(g_cvarUsername),
+        get_string_option(g_cvarTwitchId));
+        }else {
+            stop();
+        }
+    }
+
     void start(std::string host, std::string port, std::string clientId,  std::string oauth, std::string username, std::string userId) {
         m_running = true;
+        svc_log->info(mod_ctx, LOG_START_WEBSOCKET.data());
         m_thread = std::thread([this, host, port, clientId, oauth, username, userId] {
             run(host, port, clientId, oauth, username, userId);
         });
@@ -36,6 +52,7 @@ public:
 
     void stop() {
         m_running = false;
+        svc_log->info(mod_ctx, LOG_STOP_WEBSOCKET.data());
         if (tcp::socket* socket = m_socket_ptr.load()) {
             beast::error_code ec;
             socket->cancel(ec);
@@ -89,7 +106,7 @@ private:
 
             std::string message_type = welcomeJson.at("metadata").at("message_type").get<std::string>();
             if (message_type != "session_welcome") {
-                throw std::runtime_error("Failed to established connection, we are not welcomed :c : " + welcomeData);
+                throw std::runtime_error(std::format(SESSION_WELCOME_FAILED, welcomeData));
             }
             m_messages.push({TwitchEventType::SessionWelcome, welcomeData});
 
@@ -152,9 +169,7 @@ private:
                 stream.shutdown(ec);
 
                 if (response.result_int() != 202) {
-                    throw std::runtime_error(
-                        "Failed to subscribe to " + topic.type + " : HTTP " +
-                        std::to_string(response.result_int()) + " - " + response.body());
+                    throw std::runtime_error(std::format(EVENT_SUBSCRIPTION_FAILED, topic.type, std::to_string(response.result_int()), response.body()));
                 }
             }
 
@@ -202,7 +217,7 @@ private:
         } catch (std::exception const& exception) {
             m_socket_ptr = nullptr;
             if (m_running) {
-                push(TwitchEventType::TwitchEventError, std::string("ERROR: ") + exception.what());
+                push(TwitchEventType::TwitchEventError, std::format(EXCEPTION_MESSAGE, exception.what()));
             }
         }
     }
@@ -213,3 +228,4 @@ private:
     std::mutex m_mutex;
     std::queue<TwitchEvent> m_messages;
 };
+extern WsClient g_ws;
