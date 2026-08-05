@@ -1,0 +1,14 @@
+file not meant to stay
+agregate all todos here to see the remaining work
+
+ws_client.hpp
+see TODO_0 : Assert boost library is only in websocket file
+see TODO_1 : stop thread gracefully
+see TODO_2 : feature: more topic subscription
+see TODO_3 : Message_type notification
+
+still needs to clean files
+mod.cpp
+panelManagement.h
+twitchData.h
+twitchLoaderService.h

@@ -1,6 +1,9 @@
-// todo
+// TODO_0
 // Verify that nothing but this file depends on beast
 // everybody else should be agnostic of the communication protocol
+// see TODO_1 : stop thread gracefully
+// see TODO_2 : feature: more topic subscription
+// see TODO_3 : Message_type notification
 
 // Meow, wish I was a cat
 /*
@@ -60,7 +63,7 @@ public:
     }
 
     void stop() {
-        // todo: it feels like i just unplugged a cable, it needs to be gracefully shutdown
+        // TODO_1: it feels like I just unplugged a cable, it needs to be gracefully shutdown
         m_running = false;
         svc_log->info(mod_ctx, LOG_STOP_WEBSOCKET.data());
         if (tcp::socket* socket = m_socket_ptr.load()) {
@@ -122,7 +125,7 @@ private:
 
             // then we have 10s to subscribe to events with the payload id
             // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
-            // todo: allow users to subscribe to whatever they like in config file ?
+            // TODO_2: allow users to subscribe to whatever they like in config file ?
             std::string session_id = welcomeJson.at(JSON_PAYLOAD.data()).at(JSON_SESSION.data()).at(JSON_ID.data()).get<std::string>();
 
             std::vector<TwitchSubscription> topics = {
@@ -190,12 +193,12 @@ private:
                 json jsonData = json::parse(data);
                 std::string message_type = jsonData.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
 
-                // todo manage the keepalive_timeout_seconds properly
+                // TODO_3 manage the keepalive_timeout_seconds properly
                 // see https://dev.twitch.tv/docs/eventsub/handling-websocket-events#welcome-message
                 // here we assume connection never breaks, that's optimistic
                 if (message_type == JSON_MESSAGE_TYPE_SESSION_KEEPALIVE.data()) continue;
 
-                // todo must reconnect:
+                // TODO_3 must reconnect:
                 // see https://dev.twitch.tv/docs/eventsub/handling-websocket-events#reconnect-message
                 if (message_type == JSON_MESSAGE_TYPE_SESSION_RECONNECT.data()) {
                     push(TwitchEventType::Unknown, data);
@@ -204,7 +207,7 @@ private:
 
                 // if its a revocation message or close message i just ignore it >:
                 // revocation should not occur within a gameplay session (i believe)
-                // todo : properly manage close message, or does the socket properly manages it already
+                // TODO_3 : properly manage close message, or does the socket properly manages it already
                 if (message_type != JSON_MESSAGE_TYPE_NOTIFICATION.data()) {
                     push(TwitchEventType::Unknown, data);
                     continue;

@@ -17,7 +17,7 @@
 
 // custom definiton of menu
 #include "configVar.h"
-#include "panelMaganement.h"
+#include "panelManagement.h"
 
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);

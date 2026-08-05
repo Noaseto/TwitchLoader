@@ -7,7 +7,7 @@
 
 // ----------------------- Register options -----------------------
 
-ModResult register_string_option(
+inline ModResult register_string_option(
     const char* name, const char* defaultValue, ConfigVarHandle& outHandle, ModError* error) {
     ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
     cvarDesc.name = name;
@@ -19,7 +19,7 @@ ModResult register_string_option(
     return MOD_OK;
 }
 
-ModResult register_bool_option(
+inline ModResult register_bool_option(
     const char* name, const bool defaultValue, ConfigVarHandle& outHandle, ModError* error) {
     ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
     cvarDesc.name = name;
@@ -33,7 +33,7 @@ ModResult register_bool_option(
 
 // ----------------------- Options getters -----------------------
 
-std::string get_string_option(ConfigVarHandle handle, std::string fallback = "") {
+inline std::string get_string_option(ConfigVarHandle handle, std::string fallback = "") {
     size_t handleSize;
     if (handle == 0 || svc_config->get_string(mod_ctx, handle, NULL, 0, &handleSize) != MOD_OK) {
         return fallback;
@@ -47,7 +47,7 @@ std::string get_string_option(ConfigVarHandle handle, std::string fallback = "")
     return handleValue;
 }
 
-bool get_bool_option(ConfigVarHandle handle, bool fallback) {
+inline bool get_bool_option(ConfigVarHandle handle, bool fallback) {
     bool value = fallback;
     if (handle == 0 || svc_config->get_bool(mod_ctx, handle, &value) != MOD_OK) {
         return fallback;
