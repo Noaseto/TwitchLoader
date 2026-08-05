@@ -8,12 +8,12 @@
 #include "mods/svc/ui.h"
 
 // custom service
-#include "twitchStuff/twitchData.h"
+#include "twitchData.h"
 #include "twitchLoaderService.h"
 
 // websocket business import
-#include "ws_client.hpp"
-#include "nlohmann/json.hpp"
+#include "twitchCommunication/ws_client.hpp"
+#include "nlohmann/json.hpp" // this should not be included here
 
 // custom definiton of menu
 #include "configVar.h"
@@ -21,6 +21,8 @@
 
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);
+IMPORT_SERVICE(UiService, svc_ui);
+IMPORT_SERVICE(ConfigService, svc_config);
 
 WsClient g_ws;
 extern "C" {

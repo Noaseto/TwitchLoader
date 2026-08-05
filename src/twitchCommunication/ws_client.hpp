@@ -15,10 +15,11 @@
 #include <queue>
 #include <atomic>
 #include <string>
-#include "twitchStuff/twitchData.h"
 
-#include "constants/internationalisation.h"
-#include "configVar.h"
+#include "webSocketConstant.h"
+#include "../twitchData.h"
+#include "../internationalisation.h"
+#include "../configVar.h"
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -32,7 +33,7 @@ class WsClient {
 public:
     void toggleSocket() {
         if (!m_running) {
-            start("eventsub.wss.twitch.tv", "443",
+            start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(),
         get_string_option(g_cvarClientId),
         get_string_option(g_cvarOAuth),
         get_string_option(g_cvarUsername),
@@ -95,7 +96,7 @@ private:
                                        net::error::get_ssl_category()));
             }
             ws.next_layer().handshake(ssl::stream_base::client);
-            ws.handshake(host, "/ws");
+            ws.handshake(host, HANDSHAKE_ENDPOINT.data());
             m_socket_ptr = &beast::get_lowest_layer(ws);
 
             // waiting for welcome message
@@ -104,8 +105,8 @@ private:
             std::string welcomeData = beast::buffers_to_string(buffer.data());
             json welcomeJson = json::parse(welcomeData);
 
-            std::string message_type = welcomeJson.at("metadata").at("message_type").get<std::string>();
-            if (message_type != "session_welcome") {
+            std::string message_type = welcomeJson.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
+            if (message_type != JSON_MESSAGE_TYPE_SESSION_WELCOME.data()) {
                 throw std::runtime_error(std::format(SESSION_WELCOME_FAILED, welcomeData));
             }
             m_messages.push({TwitchEventType::SessionWelcome, welcomeData});
@@ -113,48 +114,47 @@ private:
             // then we have 10s to subscribe to events with the payload id
             // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
             // todo: allow users to subscribe to whatever they like in config file ?
-            std::string session_id = welcomeJson.at("payload").at("session").at("id").get<std::string>();
+            std::string session_id = welcomeJson.at(JSON_PAYLOAD.data()).at(JSON_SESSION.data()).at(JSON_ID.data()).get<std::string>();
 
             std::vector<TwitchSubscription> topics = {
-                {TwitchEventType::ChatMessage,"channel.chat.message","1"},
-                {TwitchEventType::Follow,"channel.follow","2"},
-                {TwitchEventType::Subscribe,"channel.subscribe","1"},
-                {TwitchEventType::SubGift,"channel.subscription.gift","1"},
-                {TwitchEventType::Cheer,"channel.cheer","1"},
+                {TwitchEventType::ChatMessage,SUBSCRIPTION_CHAT_MESSAGE.data(),SUBSCRIPTION_CHAT_MESSAGE_VERSION.data()},
+                {TwitchEventType::Follow,SUBSCRIPTION_FOLLOW.data(), SUBSCRIPTION_FOLLOW_VERSION.data()},
+                {TwitchEventType::Subscribe,SUBSCRIPTION_SUBSCRIBE.data(),SUBSCRIPTION_SUBSCRIBE_VERSION.data()},
+                {TwitchEventType::SubGift,SUBSCRIPTION_SUB_GIFT.data(),SUBSCRIPTION_SUB_GIFT_VERSION.data()},
+                {TwitchEventType::Cheer,SUBSCRIPTION_CHEER.data(),SUBSCRIPTION_CHEER_VERSION.data()},
             };
 
             for (const auto& topic: topics) {
                 ssl::stream<tcp::socket> stream{ioc, ctx};
-                const std::string api_host = "api.twitch.tv";
-                auto results = resolver.resolve(api_host, "443");
+                auto results = resolver.resolve(TWITCH_API_URL.data(), HTTPS_PORT.data());
 
                 net::connect(beast::get_lowest_layer(stream), results);
-                SSL_set_tlsext_host_name(stream.native_handle(), api_host.c_str());
+                SSL_set_tlsext_host_name(stream.native_handle(), TWITCH_API_URL.data());
                 stream.handshake(ssl::stream_base::client);
 
                 json condition;
                 // here I made the choice that the one using the mod wants to interact with their channel as themselves
-                condition["broadcaster_user_id"] = userId;
+                condition[JSON_BROADCASTER_USER_ID.data()] = userId;
                 if (topic.eventType == TwitchEventType::ChatMessage) {
-                    condition["user_id"] = userId;
+                    condition[JSON_USER_ID.data()] = userId;
                 }else if (topic.eventType == TwitchEventType::Follow) {
-                    condition["moderator_user_id"] = userId;
+                    condition[JSON_MODERATOR_USER_ID.data()] = userId;
                 }
 
                 json body;
-                body["type"] = topic.type;
-                body["version"] = topic.version;
-                body["condition"] = condition;
-                body["transport"] = json{
-                {"method", "websocket"},
-                {"session_id", session_id}
+                body[JSON_TYPE.data()] = topic.type;
+                body[JSON_VERSION.data()] = topic.version;
+                body[JSON_CONDITION.data()] = condition;
+                body[JSON_TRANSPORT.data()] = json{
+                {JSON_METHOD.data(), JSON_WEBSOCKET.data()},
+                {JSON_SESSION_ID.data(), session_id}
                 };
 
-                http::request<http::string_body> request{http::verb::post, "/helix/eventsub/subscriptions", 11};
-                request.set(beast::http::field::host, api_host);
-                request.set(beast::http::field::authorization, "Bearer " + oauth);
-                request.set(http::field::content_type, "application/json");
-                request.set("Client-Id", clientId);
+                http::request<http::string_body> request{http::verb::post, TWITCH_EVENT_SUBSCRIPTION_ENDPOINT.data(), HTTP_VERSION};
+                request.set(beast::http::field::host, TWITCH_API_URL.data());
+                request.set(beast::http::field::authorization, std::format(TWITCH_API_AUTHORIZATION, oauth));
+                request.set(http::field::content_type, TWITCH_API_CONTENT_TYPE_JSON.data());
+                request.set(TWITCH_API_CLIENT_ID.data(), clientId);
                 request.body() = body.dump();
                 request.prepare_payload();
 
@@ -168,7 +168,7 @@ private:
                 beast::error_code ec;
                 stream.shutdown(ec);
 
-                if (response.result_int() != 202) {
+                if (response.result() !=  http::status::accepted) {
                     throw std::runtime_error(std::format(EVENT_SUBSCRIPTION_FAILED, topic.type, std::to_string(response.result_int()), response.body()));
                 }
             }
@@ -179,16 +179,16 @@ private:
                 std::string data = beast::buffers_to_string(buffer.data());
 
                 json jsonData = json::parse(data);
-                std::string message_type = jsonData.at("metadata").at("message_type").get<std::string>();
+                std::string message_type = jsonData.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
 
                 // todo manage the keepalive_timeout_seconds properly
                 // see https://dev.twitch.tv/docs/eventsub/handling-websocket-events#welcome-message
                 // here we assume connection never breaks, that's optimistic
-                if (message_type == "session_keepalive") continue;
+                if (message_type == JSON_MESSAGE_TYPE_SESSION_KEEPALIVE.data()) continue;
 
                 // todo must reconnect:
                 // see https://dev.twitch.tv/docs/eventsub/handling-websocket-events#reconnect-message
-                if (message_type == "session_reconnect") {
+                if (message_type == JSON_MESSAGE_TYPE_SESSION_RECONNECT.data()) {
                     push(TwitchEventType::Unknown, data);
                     break;
                 }
@@ -196,20 +196,20 @@ private:
                 // if its a revocation message or close message i just ignore it >:
                 // revocation should not occur within a gameplay session (i believe)
                 // todo : properly manage close message, or does the socket properly manages it already
-                if (message_type != "notification") {
+                if (message_type != JSON_MESSAGE_TYPE_NOTIFICATION.data()) {
                     push(TwitchEventType::Unknown, data);
                     continue;
                 }
 
                 std::string subscription_type =
-                    jsonData.at("payload").at("subscription").at("type").get<std::string>();
+                    jsonData.at(JSON_PAYLOAD.data()).at(JSON_SUBSCRIPTION.data()).at(JSON_TYPE.data()).get<std::string>();
 
                 TwitchEventType type = TwitchEventType::Unknown;
-                if (subscription_type == "channel.chat.message")   type = TwitchEventType::ChatMessage;
-                else if (subscription_type == "channel.follow")    type = TwitchEventType::Follow;
-                else if (subscription_type == "channel.subscribe") type = TwitchEventType::Subscribe;
-                else if (subscription_type == "channel.subscribe.gift") type = TwitchEventType::SubGift;
-                else if (subscription_type == "channel.cheer")     type = TwitchEventType::Cheer;
+                if (subscription_type == SUBSCRIPTION_CHAT_MESSAGE.data())   type = TwitchEventType::ChatMessage;
+                else if (subscription_type == SUBSCRIPTION_FOLLOW.data())    type = TwitchEventType::Follow;
+                else if (subscription_type == SUBSCRIPTION_SUBSCRIBE.data()) type = TwitchEventType::Subscribe;
+                else if (subscription_type == SUBSCRIPTION_SUB_GIFT.data()) type = TwitchEventType::SubGift;
+                else if (subscription_type == SUBSCRIPTION_CHEER.data())     type = TwitchEventType::Cheer;
 
                 push(type, data);
             }

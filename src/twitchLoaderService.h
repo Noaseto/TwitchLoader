@@ -1,5 +1,5 @@
 #include "mods/api.h"
-#include "twitchStuff/twitchData.h"
+#include "twitchData.h"
 
 #define MY_MOD_SERVICE_ID "io.github.noaseto.twitchloader"
 #define MY_MOD_SERVICE_MAJOR 1u

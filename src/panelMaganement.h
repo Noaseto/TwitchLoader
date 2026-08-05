@@ -6,14 +6,11 @@
 #include "mods/service.hpp"
 #include "mods/svc/ui.h"
 #include "mods/svc/config.h"
-#include "constants/internationalisation.h"
+#include "internationalisation.h"
 #include "configVar.h"
-#include "ws_client.hpp"
+#include "twitchCommunication/ws_client.hpp"
 
 inline UiWindowHandle g_controlsWindow = 0;
-
-IMPORT_SERVICE(UiService, svc_ui);
-IMPORT_SERVICE(ConfigService, svc_config);
 
 inline void add_control(UiElementHandle pane, const UiControlDesc& desc) {
     svc_ui->pane_add_control(mod_ctx, pane, &desc, nullptr);
