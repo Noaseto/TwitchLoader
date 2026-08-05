@@ -60,6 +60,7 @@ public:
     }
 
     void stop() {
+        // todo: it feels like i just unplugged a cable, it needs to be gracefully shutdown
         m_running = false;
         svc_log->info(mod_ctx, LOG_STOP_WEBSOCKET.data());
         if (tcp::socket* socket = m_socket_ptr.load()) {

@@ -1,3 +1,5 @@
+'TODO This need a full rework
+
 @startuml
 ' members definition
 participant ConfigFile as cf
@@ -6,7 +8,7 @@ box TwitchLoader
     participant websocket as ws
     participant listeners as navi
 end box
-participant TwitchApi as api
+participant Twitch as twitch
 box TwitchConsumer_Mods
     participant consumerMain as naviMain
 end box
@@ -20,8 +22,9 @@ activate main
     main -> cf : read settings.conf
     cf --> main : oauth key
     main -> ws: init socket
-    ws -> api: boop
-    api --> ws:
+    ws -> twitch: boop
+    note over navi: more on that in the other diagram
+    twitch --> ws:
     ws --> main:
 deactivate main
 
@@ -33,7 +36,7 @@ loop for each consummer
 end
 
 
-api -> ws: TwitchEvent (async, could happen at any time)
+twitch -> ws: TwitchEvent (async, could happen at any time)
 ws -> ws: socket.queue.add(event)
 
 ' update

@@ -4,5 +4,7 @@ I will not make any effort to make this fully agnostic of the service it is link
 
 twitch websocket management and events
 https://dev.twitch.tv/docs/eventsub/websocket-reference/
+
 https://dev.twitch.tv/docs/eventsub/handling-websocket-events/
+
 https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
