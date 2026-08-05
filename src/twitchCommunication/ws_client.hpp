@@ -1,6 +1,14 @@
 // todo
-// nothing but this file should depend on beast, everybody else should be agnostic of the communication protocol
+// Verify that nothing but this file depends on beast
+// everybody else should be agnostic of the communication protocol
 
+// Meow, wish I was a cat
+/*
+            |\__/,|   (`\
+            |_ _  |.--.) )
+            ( T   )     /
+            (((^_(((/(((_/
+*/
 #pragma once
 
 #include <boost/beast/core.hpp>

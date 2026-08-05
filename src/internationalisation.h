@@ -2,6 +2,17 @@
 // be applied here. To make things easier for later, all displayed texts are aggregated here instead of magic string inside
 // the code. For now, they stay in english.
 
+// That's a fish not a poisson.
+/*
+   O     O           ,
+   o o          .:/
+     o      ,,///;,   ,;/
+       o   o)::::::;;///
+          >::::::::;;\\\
+            ''\\\\\'" ';\
+               ';\
+ */
+
 #pragma once
 #include <string_view>
 

@@ -1,4 +1,5 @@
-// Mhhh, could this be done with defines ? this would be my java slope then. have a coffee c[_]
+// Mhhh, could this be done with defines ? this would be my java slope then.
+// have a coffee c[_]
 #pragma once
 
 #include <string_view>

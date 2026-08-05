@@ -1,9 +1,14 @@
+/*
+   (@__  Quack
+\\\_\
+<____)
+*/
 #pragma once
 
 // ----------------------- Register options -----------------------
 
 ModResult register_string_option(
-    const char* name, char* defaultValue, ConfigVarHandle& outHandle, ModError* error) {
+    const char* name, const char* defaultValue, ConfigVarHandle& outHandle, ModError* error) {
     ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
     cvarDesc.name = name;
     cvarDesc.type = CONFIG_VAR_STRING;
@@ -15,7 +20,7 @@ ModResult register_string_option(
 }
 
 ModResult register_bool_option(
-    const char* name, bool defaultValue, ConfigVarHandle& outHandle, ModError* error) {
+    const char* name, const bool defaultValue, ConfigVarHandle& outHandle, ModError* error) {
     ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
     cvarDesc.name = name;
     cvarDesc.type = CONFIG_VAR_BOOL;
