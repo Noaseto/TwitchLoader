@@ -1,6 +1,9 @@
 #pragma once
-#include <string>
 
+#include "mods/service.hpp"
+
+#include <string>
+#include <cstdint>
 
 // see https://dev.twitch.tv/docs/eventsub/websocket-reference/
 enum class TwitchEventType {
@@ -18,7 +21,8 @@ enum class TwitchEventType {
 typedef struct TwitchEvent {
     uint32_t struct_size;
     TwitchEventType type;
-    std::string* data;
+    const char* data;
+    uint32_t data_size;
 } TwitchEvent;
 
 typedef struct TwitchEventsService {
@@ -34,4 +38,4 @@ typedef struct TwitchSubscription {
     TwitchEventType eventType;
     std::string type;
     std::string version;
-};
+} TwitchSubscription;

@@ -88,11 +88,12 @@ public:
     }
 
 private:
-    void push(TwitchEventType type, std::string msg) {
+    void push(TwitchEventType type, const std::string& msg) {
         std::lock_guard<std::mutex> lock(m_mutex);
-        TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
+        TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL, NULL};
         twitchEvent.type = type;
-        twitchEvent.data = &msg;
+        twitchEvent.data = msg.c_str();
+        twitchEvent.data_size = msg.size();
         m_messages.push(twitchEvent);
     }
 
