@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
 
-// todo, in java there is javadoc, python docstring what is the equivalent in c/cpp
-// -> create doc
 
 // see https://dev.twitch.tv/docs/eventsub/websocket-reference/
 enum class TwitchEventType {
@@ -17,18 +15,11 @@ enum class TwitchEventType {
     // todo some ideas to add: Raid, prediction, channel point reward
 };
 
-// Todo: Make this is agnostic for the data transfer over service call (or should I ?)
 typedef struct TwitchEvent {
+    uint32_t struct_size;
     TwitchEventType type;
-    std::string data;
+    std::string* data;
 } TwitchEvent;
-
-typedef struct TwitchSubscription {
-// see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
-    TwitchEventType eventType;
-    std::string type;
-    std::string version;
-};
 
 typedef struct TwitchEventsService {
     ServiceHeader header;
@@ -36,3 +27,11 @@ typedef struct TwitchEventsService {
         const TwitchEvent** outEvents,
         uint32_t* outEventCount);
 } TwitchEventsService;
+
+// only used by the ws_client
+typedef struct TwitchSubscription {
+// see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
+    TwitchEventType eventType;
+    std::string type;
+    std::string version;
+};

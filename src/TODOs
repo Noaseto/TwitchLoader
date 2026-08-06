@@ -7,8 +7,11 @@ see TODO_1 : stop thread gracefully
 see TODO_2 : feature: more topic subscription
 see TODO_3 : Message_type notification
 
-still needs to clean files
-mod.cpp
 panelManagement.h
-twitchData.h
-twitchLoaderService.h
+TODO clean the call sequence to clarify what/who does what
+
+still needs to clean files
+    mod.cpp
+
+    twitchData.h
+    twitchLoaderService.h

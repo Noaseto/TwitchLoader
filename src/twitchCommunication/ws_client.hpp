@@ -83,10 +83,17 @@ public:
         return true;
     }
 
+    int get_messages_length() const {
+        return m_messages.size();
+    }
+
 private:
     void push(TwitchEventType type, std::string msg) {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_messages.push(TwitchEvent{type, msg});
+        TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
+        twitchEvent.type = type;
+        twitchEvent.data = &msg;
+        m_messages.push(twitchEvent);
     }
 
     void run(const std::string& host, const std::string& port,
@@ -118,10 +125,14 @@ private:
             json welcomeJson = json::parse(welcomeData);
 
             std::string message_type = welcomeJson.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
+            svc_log->info(mod_ctx, std::format(LOG_MESSAGE_TYPE_RECEIVED, message_type).c_str());
             if (message_type != JSON_MESSAGE_TYPE_SESSION_WELCOME.data()) {
                 throw std::runtime_error(std::format(SESSION_WELCOME_FAILED, welcomeData));
             }
-            m_messages.push({TwitchEventType::SessionWelcome, welcomeData});
+            TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
+            twitchEvent.type = TwitchEventType::SessionWelcome;
+            twitchEvent.data = &welcomeData;
+            m_messages.push(twitchEvent);
 
             // then we have 10s to subscribe to events with the payload id
             // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
@@ -189,6 +200,7 @@ private:
                 beast::flat_buffer buffer;
                 ws.read(buffer);
                 std::string data = beast::buffers_to_string(buffer.data());
+                svc_log->debug(mod_ctx, data.c_str());
 
                 json jsonData = json::parse(data);
                 std::string message_type = jsonData.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
@@ -222,6 +234,8 @@ private:
                 else if (subscription_type == SUBSCRIPTION_SUBSCRIBE.data()) type = TwitchEventType::Subscribe;
                 else if (subscription_type == SUBSCRIPTION_SUB_GIFT.data()) type = TwitchEventType::SubGift;
                 else if (subscription_type == SUBSCRIPTION_CHEER.data())     type = TwitchEventType::Cheer;
+
+                svc_log->info(mod_ctx, std::format(LOG_MESSAGE_TYPE_RECEIVED,subscription_type).c_str());
 
                 push(type, data);
             }

@@ -5,6 +5,9 @@
 */
 #pragma once
 
+#include <string>
+#include "internationalisation.h"
+
 // ----------------------- Register options -----------------------
 
 inline ModResult register_string_option(

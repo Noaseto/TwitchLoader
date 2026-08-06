@@ -100,5 +100,5 @@ inline ModResult buildMainPanel(ModContext*, UiElementHandle panel, void*, ModEr
 }
 
 inline ModResult clearPanels() {
-    // todo clear what must be
+    // todo clear what must be, is there anything to clear ?
 }

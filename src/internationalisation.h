@@ -50,6 +50,8 @@ inline constexpr std::string_view SECRETS_OAUTH_TOKEN_DESCRIPTION = "Your token"
 inline constexpr std::string_view TWITCH_LOADER_PANE_FAILED = "failed to open twitch loader secrets window";
 
 // logs
-inline constexpr std::string_view LOG_INIT_SUCCESS = "twitch loader started";
+inline constexpr std::string_view LOG_MOD_INIT = "twitch loader started";
+inline constexpr std::string_view LOG_MOD_STOP = "twitch loader stopped";
 inline constexpr std::string_view LOG_START_WEBSOCKET = "Starts websocket connection";
 inline constexpr std::string_view LOG_STOP_WEBSOCKET = "Stops websocket connection";
+inline constexpr std::string_view LOG_MESSAGE_TYPE_RECEIVED = "{} received";
