@@ -79,6 +79,10 @@ public:
         if (m_thread.joinable()) m_thread.join();
     }
 
+    bool isStarted() {
+        return m_running;
+    }
+
     bool try_pop_all_message(TwitchEvent& out) {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_messages.empty()) return false;
@@ -95,8 +99,11 @@ private:
     void push(TwitchEventType type, const std::string& msg) {
         std::lock_guard<std::mutex> lock(m_mutex);
         TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
+
         twitchEvent.type = type;
-        twitchEvent.data = msg.c_str();
+        char* copy = new char[msg.size() + 1];
+        std::memcpy(copy, msg.c_str(), msg.size() + 1);
+        twitchEvent.data = copy;
         m_messages.push(twitchEvent);
     }
 

@@ -40,6 +40,22 @@ void add_button(UiElementHandle pane, const char* label, const char* help, const
     svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 }
 
+// onClick actions
+void onToggleConnection(ModContext*, void*) {
+    UiDialogDesc desc = UI_DIALOG_DESC_INIT;
+    desc.title= ACTIONS_TOGGLE.data();
+    desc.body_rml = g_ws.isStarted() ? "Stop the connection" : "Starts the connection";
+    std::string toggleText = g_ws.isStarted() ? "Stop" : "Start";
+    UiDialogHandle dialog_handle;
+    desc.action_count=2;
+    UiDialogAction cancelAction ={.label = "Cancel", .on_pressed = [](ModContext*, UiDialogHandle,void*){}, .user_data = NULL, .keep_open = false};
+    UiDialogAction toggleAction ={.label = toggleText.c_str(), .on_pressed = [](ModContext*, UiDialogHandle,void*){g_ws.toggleSocket();}, .user_data = NULL, .keep_open = false};
+    const UiDialogAction actions[] = { cancelAction, toggleAction };
+
+    desc.actions = actions;
+    svc_ui->dialog_push(mod_ctx, &desc, &dialog_handle);
+}
+
 // tab management
 inline ModResult buildTwitchConfigTab(
     ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
@@ -50,7 +66,8 @@ inline ModResult buildTwitchConfigTab(
 
     svc_ui->pane_add_section(mod_ctx, left, ACTIONS_SECTION_NAME.data());
     add_toggle(left, ACTIONS_AUTO_START.data(), g_cvarAutoStart, ACTIONS_AUTO_START_DESCRIPTION.data());
-    add_button(left, ACTIONS_TOGGLE.data(), ACTIONS_TOGGLE_DESCRIPTION.data(), [](ModContext*, void*){g_ws.toggleSocket();});
+    //add_button(left, ACTIONS_TOGGLE.data(), ACTIONS_TOGGLE_DESCRIPTION.data(), [](ModContext*, void*){g_ws.toggleSocket();});
+    add_button(left, ACTIONS_TOGGLE.data(), ACTIONS_TOGGLE_DESCRIPTION.data(), onToggleConnection);
 
     return MOD_OK;
 }
