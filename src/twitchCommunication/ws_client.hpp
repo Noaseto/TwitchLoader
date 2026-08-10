@@ -40,6 +40,13 @@ namespace ssl = boost::asio::ssl;
 using json = nlohmann::json;
 using tcp = boost::asio::ip::tcp;
 
+typedef struct TwitchSubscription {
+    // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
+    TwitchEventType eventType;
+    std::string type;
+    std::string version;
+} TwitchSubscription;
+
 class WsClient {
 public:
     void toggleSocket() {

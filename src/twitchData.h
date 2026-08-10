@@ -30,11 +30,3 @@ typedef struct TwitchEventsService {
         const TwitchEvent** outEvents,
         uint32_t* outEventCount);
 } TwitchEventsService;
-
-// only used by the ws_client
-typedef struct TwitchSubscription {
-// see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
-    TwitchEventType eventType;
-    std::string type;
-    std::string version;
-} TwitchSubscription;
