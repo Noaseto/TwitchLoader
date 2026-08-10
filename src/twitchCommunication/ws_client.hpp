@@ -44,17 +44,21 @@ class WsClient {
 public:
     void toggleSocket() {
         if (!m_running) {
-            start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(),
-        get_string_option(g_cvarClientId),
-        get_string_option(g_cvarOAuth),
-        get_string_option(g_cvarUsername),
-        get_string_option(g_cvarTwitchId));
+            const std::string clientId = get_string_option(g_cvarClientId);
+            const std::string OAuth= get_string_option(g_cvarOAuth);
+            const std::string username = get_string_option(g_cvarUsername);
+            const std::string twitchId = get_string_option(g_cvarTwitchId);
+            if (!clientId.empty() && !OAuth.empty() && !username.empty() && !twitchId.empty()) {
+                start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(),clientId,OAuth, username, twitchId);
+            }else {
+                svc_log->error(mod_ctx, LAUNCH_WEBSOCKET_FAILED.data());
+            }
         }else {
             stop();
         }
     }
 
-    void start(std::string host, std::string port, std::string clientId,  std::string oauth, std::string username, std::string userId) {
+    void start(const std::string& host, const std::string& port, const std::string& clientId,  const std::string& oauth, const std::string& username, const std::string& userId) {
         m_running = true;
         svc_log->info(mod_ctx, LOG_START_WEBSOCKET.data());
         m_thread = std::thread([this, host, port, clientId, oauth, username, userId] {
@@ -75,7 +79,7 @@ public:
         if (m_thread.joinable()) m_thread.join();
     }
 
-    bool try_pop_message(TwitchEvent& out) {
+    bool try_pop_all_message(TwitchEvent& out) {
         std::lock_guard<std::mutex> lock(m_mutex);
         if (m_messages.empty()) return false;
         out = m_messages.front();
@@ -90,10 +94,9 @@ public:
 private:
     void push(TwitchEventType type, const std::string& msg) {
         std::lock_guard<std::mutex> lock(m_mutex);
-        TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL, NULL};
+        TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
         twitchEvent.type = type;
         twitchEvent.data = msg.c_str();
-        twitchEvent.data_size = msg.size();
         m_messages.push(twitchEvent);
     }
 
@@ -130,10 +133,7 @@ private:
             if (message_type != JSON_MESSAGE_TYPE_SESSION_WELCOME.data()) {
                 throw std::runtime_error(std::format(SESSION_WELCOME_FAILED, welcomeData));
             }
-            TwitchEvent twitchEvent = {sizeof(TwitchEvent), TwitchEventType::Unknown, NULL};
-            twitchEvent.type = TwitchEventType::SessionWelcome;
-            twitchEvent.data = &welcomeData;
-            m_messages.push(twitchEvent);
+            // TODO make sure the welcome message is valid, and if not, stop the process, and add an error level log
 
             // then we have 10s to subscribe to events with the payload id
             // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/

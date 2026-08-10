@@ -22,7 +22,6 @@ typedef struct TwitchEvent {
     uint32_t struct_size;
     TwitchEventType type;
     const char* data;
-    uint32_t data_size;
 } TwitchEvent;
 
 typedef struct TwitchEventsService {

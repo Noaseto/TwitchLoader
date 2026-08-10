@@ -36,19 +36,21 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
     }
 
     // at startup, thread is not running, the toggle will launch the start
-    if (get_bool_option(g_cvarAutoStart, false)) g_ws.toggleSocket();
+    if (get_bool_option(g_cvarAutoStart, false)) {
+            g_ws.toggleSocket();
+    }
 
     svc_log->info(mod_ctx, LOG_MOD_INIT.data());
     return MOD_OK;
 }
 
-MOD_EXPORT ModResult mod_update(ModError* error) {
+MOD_EXPORT ModResult mod_update(ModError*) {
     // Clear the previous frame's events
     publishedEvents.clear();
     publishedEvents.reserve(g_ws.get_messages_length());
 
     TwitchEvent twitchEvent;
-    while (g_ws.try_pop_message(twitchEvent)) {
+    while (g_ws.try_pop_all_message(twitchEvent)) {
         publishedEvents.push_back(twitchEvent);
     }
     return MOD_OK;

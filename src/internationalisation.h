@@ -2,6 +2,8 @@
 // be applied here. To make things easier for later, all displayed texts are aggregated here instead of magic string inside
 // the code. For now, they stay in english.
 
+// also nobody knows if it is internationalisation or internationalization ... i18n is fine as a name :>
+
 // That's a fish not a poisson.
 /*
    O     O           ,
@@ -13,10 +15,12 @@
                ';\
  */
 
+//
 #pragma once
 #include <string_view>
 
 // websocket related
+inline constexpr std::string_view LAUNCH_WEBSOCKET_FAILED = "Configuration is not fully done, webSocket connection cannot start.";
 inline constexpr std::string_view SESSION_WELCOME_FAILED = "Failed to established connection, we are not welcomed :c : {}";
 inline constexpr std::string_view EVENT_SUBSCRIPTION_FAILED = "Failed to subscribe to {} : HTTP {} - {}";
 inline constexpr std::string_view EXCEPTION_MESSAGE = "Error: {}";
@@ -49,7 +53,7 @@ inline constexpr std::string_view SECRETS_OAUTH_TOKEN_DESCRIPTION = "Your token"
 
 inline constexpr std::string_view TWITCH_LOADER_PANE_FAILED = "failed to open twitch loader secrets window";
 
-// logs
+// logs, should these really be translated ?
 inline constexpr std::string_view LOG_MOD_INIT = "twitch loader started";
 inline constexpr std::string_view LOG_MOD_STOP = "twitch loader stopped";
 inline constexpr std::string_view LOG_START_WEBSOCKET = "Starts websocket connection";

@@ -3,6 +3,7 @@
 \\\_\
 <____)
 */
+
 #pragma once
 
 #include <string>
@@ -67,19 +68,19 @@ inline ConfigVarHandle g_cvarOAuth = 0;
 inline ConfigVarHandle g_cvarAutoStart = 0;
 
 inline ModResult registerVariables(ModError* error) {
-    ModResult result = register_string_option("username", "twitch username", g_cvarUsername, error);
+    ModResult result = register_string_option("username", "", g_cvarUsername, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchId", "twitch id", g_cvarTwitchId, error);
+    result = register_string_option("twitchId", "", g_cvarTwitchId, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchClientId", "clientId", g_cvarClientId, error);
+    result = register_string_option("twitchClientId", "", g_cvarClientId, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchOAuth", "OAuthToken", g_cvarOAuth, error);
+    result = register_string_option("twitchOAuth", "", g_cvarOAuth, error);
     if (result != MOD_OK) {
         return result;
     }

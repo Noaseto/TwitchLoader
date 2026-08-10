@@ -1,21 +1,16 @@
-// once again, i wanna split this file
-// also in the mod sdk there are .h, and .hpp files, why is that
-// todo Lis noisette
 #pragma once
 
 #include "mods/service.hpp"
-#include "mods/svc/ui.h"
 #include "mods/svc/config.h"
-#include "internationalisation.h"
+#include "mods/svc/ui.h"
+
 #include "configVar.h"
+#include "internationalisation.h"
 #include "twitchCommunication/ws_client.hpp"
 
 inline UiWindowHandle g_controlsWindow = 0;
 
-inline void add_control(UiElementHandle pane, const UiControlDesc& desc) {
-    svc_ui->pane_add_control(mod_ctx, pane, &desc, nullptr);
-}
-
+// add specific fields
 void add_toggle(UiElementHandle pane, const char* label, ConfigVarHandle cvar, const char* help) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.kind = UI_CONTROL_TOGGLE;
@@ -23,7 +18,7 @@ void add_toggle(UiElementHandle pane, const char* label, ConfigVarHandle cvar, c
     control.help_rml = help;
     control.binding = UI_BINDING_CONFIG_VAR;
     control.config_var = cvar;
-    add_control(pane, control);
+    svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 }
 
 void add_string(UiElementHandle pane, const char* label, ConfigVarHandle cvar, const char* help) {
@@ -33,14 +28,19 @@ void add_string(UiElementHandle pane, const char* label, ConfigVarHandle cvar, c
     control.help_rml = help;
     control.binding = UI_BINDING_CONFIG_VAR;
     control.config_var = cvar;
-    add_control(pane, control);
+    svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 }
 
-void onToggleSocket(ModContext*, void*) {
-    g_ws.toggleSocket();
+void add_button(UiElementHandle pane, const char* label, const char* help, const UiPressedFn onPressed) {
+    UiControlDesc control = UI_CONTROL_DESC_INIT;
+    control.kind = UI_CONTROL_BUTTON;
+    control.label = label;
+    control.help_rml = help;
+    control.on_pressed = onPressed;
+    svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 }
 
-
+// tab management
 inline ModResult buildTwitchConfigTab(
     ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
     (void)right;
@@ -50,13 +50,7 @@ inline ModResult buildTwitchConfigTab(
 
     svc_ui->pane_add_section(mod_ctx, left, ACTIONS_SECTION_NAME.data());
     add_toggle(left, ACTIONS_AUTO_START.data(), g_cvarAutoStart, ACTIONS_AUTO_START_DESCRIPTION.data());
-
-    UiControlDesc startWebsocketControl = UI_CONTROL_DESC_INIT;
-    startWebsocketControl.kind = UI_CONTROL_BUTTON;
-    startWebsocketControl.label = ACTIONS_TOGGLE.data();
-    startWebsocketControl.help_rml = ACTIONS_TOGGLE_DESCRIPTION.data();
-    startWebsocketControl.on_pressed = onToggleSocket;
-    add_control(left, startWebsocketControl);
+    add_button(left, ACTIONS_TOGGLE.data(), ACTIONS_TOGGLE_DESCRIPTION.data(), [](ModContext*, void*){g_ws.toggleSocket();});
 
     return MOD_OK;
 }
@@ -64,13 +58,14 @@ inline ModResult buildTwitchConfigTab(
 inline ModResult buildTwitchSecretTab(
     ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
     (void)right;
-    svc_ui->pane_add_section(mod_ctx, left, "Secret");
+    svc_ui->pane_add_section(mod_ctx, left, SECRETS_SECTION_NAME.data());
     add_string(left, SECRETS_CLIENT_ID.data(), g_cvarClientId, SECRETS_CLIENT_ID_DESCRIPTION.data());
     add_string(left, SECRETS_OAUTH_TOKEN.data(), g_cvarOAuth, SECRETS_OAUTH_TOKEN_DESCRIPTION.data());
 
     return MOD_OK;
 }
 
+// Mod config management
 inline void onOpenModConfig(ModContext*, void*) {
     if (g_controlsWindow != 0) {
         return;
@@ -89,12 +84,12 @@ inline void onOpenModConfig(ModContext*, void*) {
     }
 }
 
-inline ModResult buildMainPanel(ModContext*, UiElementHandle panel, void*, ModError*) {
+inline ModResult buildMainPanel(ModContext*, UiElementHandle pane, void*, ModError*) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.label = TWITCH_LOADER_OPTIONS_BUTTON.data();
     control.kind = UI_CONTROL_BUTTON;
     control.on_pressed = onOpenModConfig;
-    add_control(panel, control);
+    svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 
     return MOD_OK;
 }
