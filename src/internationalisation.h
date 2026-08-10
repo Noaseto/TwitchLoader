@@ -21,9 +21,9 @@
 
 // websocket related
 inline constexpr std::string_view LAUNCH_WEBSOCKET_FAILED = "Configuration is not fully done, webSocket connection cannot start.";
-inline constexpr std::string_view SESSION_WELCOME_FAILED = "Failed to established connection, we are not welcomed :c : {}";
-inline constexpr std::string_view EVENT_SUBSCRIPTION_FAILED = "Failed to subscribe to {} : HTTP {} - {}";
-inline constexpr std::string_view EXCEPTION_MESSAGE = "Error: {}";
+inline constexpr std::string_view SESSION_WELCOME_FAILED = "Failed to established connection, we are not welcomed :c : ";
+inline constexpr std::string_view EVENT_SUBSCRIPTION_FAILED = "Failed to subscribe to ";
+inline constexpr std::string_view EXCEPTION_MESSAGE = "Error: ";
 
 // config var
 inline constexpr std::string_view REGISTER_CONFIG_VAR_FAILED = "failed to register twitch loader options";
@@ -58,4 +58,4 @@ inline constexpr std::string_view LOG_MOD_INIT = "twitch loader started";
 inline constexpr std::string_view LOG_MOD_STOP = "twitch loader stopped";
 inline constexpr std::string_view LOG_START_WEBSOCKET = "Starts websocket connection";
 inline constexpr std::string_view LOG_STOP_WEBSOCKET = "Stops websocket connection";
-inline constexpr std::string_view LOG_MESSAGE_TYPE_RECEIVED = "{} received";
+inline constexpr std::string_view LOG_MESSAGE_TYPE_RECEIVED = " received";

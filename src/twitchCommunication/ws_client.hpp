@@ -136,9 +136,9 @@ private:
             json welcomeJson = json::parse(welcomeData);
 
             std::string message_type = welcomeJson.at(JSON_METADATA.data()).at(JSON_MESSAGE_TYPE.data()).get<std::string>();
-            svc_log->info(mod_ctx, std::format(LOG_MESSAGE_TYPE_RECEIVED, message_type).c_str());
+            svc_log->info(mod_ctx, (LOG_MESSAGE_TYPE_RECEIVED.data() + message_type).c_str());
             if (message_type != JSON_MESSAGE_TYPE_SESSION_WELCOME.data()) {
-                throw std::runtime_error(std::format(SESSION_WELCOME_FAILED, welcomeData));
+                throw std::runtime_error(SESSION_WELCOME_FAILED.data() + welcomeData);
             }
             // TODO make sure the welcome message is valid, and if not, stop the process, and add an error level log
 
@@ -183,7 +183,7 @@ private:
 
                 http::request<http::string_body> request{http::verb::post, TWITCH_EVENT_SUBSCRIPTION_ENDPOINT.data(), HTTP_VERSION};
                 request.set(beast::http::field::host, TWITCH_API_URL.data());
-                request.set(beast::http::field::authorization, std::format(TWITCH_API_AUTHORIZATION, oauth));
+                request.set(beast::http::field::authorization, TWITCH_API_AUTHORIZATION.data() + oauth);
                 request.set(http::field::content_type, TWITCH_API_CONTENT_TYPE_JSON.data());
                 request.set(TWITCH_API_CLIENT_ID.data(), clientId);
                 request.body() = body.dump();
@@ -200,7 +200,14 @@ private:
                 stream.shutdown(ec);
 
                 if (response.result() !=  http::status::accepted) {
-                    throw std::runtime_error(std::format(EVENT_SUBSCRIPTION_FAILED, topic.type, std::to_string(response.result_int()), response.body()));
+                    // todo ... that is truly ugly
+                    std::string errorMessage = EVENT_SUBSCRIPTION_FAILED.data() +
+                    topic.type +
+                    " " +
+                    std::to_string(response.result_int()) +
+                    " - " +
+                    response.body();
+                    throw std::runtime_error(errorMessage);
                 }
             }
 
@@ -243,7 +250,7 @@ private:
                 else if (subscription_type == SUBSCRIPTION_SUB_GIFT.data()) type = TwitchEventType::SubGift;
                 else if (subscription_type == SUBSCRIPTION_CHEER.data())     type = TwitchEventType::Cheer;
 
-                svc_log->info(mod_ctx, std::format(LOG_MESSAGE_TYPE_RECEIVED,subscription_type).c_str());
+                svc_log->info(mod_ctx, (LOG_MESSAGE_TYPE_RECEIVED.data() + subscription_type).c_str());
 
                 push(type, data);
             }
@@ -251,7 +258,7 @@ private:
         } catch (std::exception const& exception) {
             m_socket_ptr = nullptr;
             if (m_running) {
-                push(TwitchEventType::TwitchEventError, std::format(EXCEPTION_MESSAGE, exception.what()));
+                push(TwitchEventType::TwitchEventError, EXCEPTION_MESSAGE.data() + std::string(exception.what()));
             }
         }
     }

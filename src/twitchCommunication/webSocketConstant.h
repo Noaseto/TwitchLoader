@@ -10,7 +10,7 @@ inline constexpr std::string_view HANDSHAKE_ENDPOINT = "/ws";
 inline constexpr std::string_view TWITCH_API_URL = "api.twitch.tv";
 inline constexpr std::string_view TWITCH_EVENT_SUBSCRIPTION_ENDPOINT = "/helix/eventsub/subscriptions";
 inline constexpr int HTTP_VERSION = 11;
-inline constexpr std::string_view TWITCH_API_AUTHORIZATION = "Bearer {}";
+inline constexpr std::string_view TWITCH_API_AUTHORIZATION = "Bearer ";
 inline constexpr std::string_view TWITCH_API_CONTENT_TYPE_JSON = "application/json";
 inline constexpr std::string_view TWITCH_API_CLIENT_ID = "Client-Id";
 
