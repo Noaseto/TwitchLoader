@@ -8,7 +8,6 @@
 #include "internationalisation.h"
 #include "panelManagement.h"
 #include "twitchCommunication/ws_client.hpp"
-#include "twitchData.h"
 #include "twitchLoaderService.h"
 
 DEFINE_MOD();
@@ -37,7 +36,7 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
 
     // at startup, thread is not running, the toggle will launch the start
     if (get_bool_option(g_cvarAutoStart, false)) {
-            g_ws.toggleSocket();
+        g_ws.toggleSocket();
     }
 
     svc_log->info(mod_ctx, LOG_MOD_INIT.data());
@@ -50,15 +49,13 @@ MOD_EXPORT ModResult mod_update(ModError*) {
     publishedEvents.reserve(g_ws.get_messages_length());
 
     TwitchEvent twitchEvent;
-    while (g_ws.try_pop_all_message(twitchEvent)) {
+    while (g_ws.try_pop_message(twitchEvent)) {
         publishedEvents.push_back(twitchEvent);
     }
     return MOD_OK;
 }
 
 MOD_EXPORT ModResult mod_shutdown(ModError*) {
-    // todo properly disconnect from twitch
-    // I'm pretty (nice) sure that as of right now, reloading the mod ends up in memory leak
     g_ws.stop();
     svc_log->info(mod_ctx, LOG_MOD_STOP.data());
     return MOD_OK;
@@ -68,13 +65,11 @@ MOD_EXPORT ModResult mod_shutdown(ModError*) {
 // Service function(s) implementation, all of them are called by mod consumers
 // todo, should these be defined in a dedicated file as the sdk does
 
-static ModResult get_events(ModContext*,const TwitchEvent** outEvents, uint32_t* outEventCount) {
+static ModResult get_events(ModContext*, const TwitchEvent** outEvents, uint32_t* outEventCount) {
     if (outEvents == nullptr || outEventCount == nullptr) {
         return MOD_INVALID_ARGUMENT;
     }
-    *outEvents = publishedEvents.empty()
-        ? nullptr
-        : publishedEvents.data();
+    *outEvents = publishedEvents.empty() ? nullptr : publishedEvents.data();
     *outEventCount = static_cast<uint32_t>(publishedEvents.size());
     return MOD_OK;
 }

@@ -44,7 +44,8 @@ inline std::string get_string_option(ConfigVarHandle handle, std::string fallbac
     }
 
     std::string handleValue(handleSize, '\0');
-    if (svc_config->get_string(mod_ctx,handle,handleValue.data(), handleSize+1, NULL) != MOD_OK) {
+    if (svc_config->get_string(mod_ctx, handle, handleValue.data(), handleSize + 1, NULL) != MOD_OK)
+    {
         return fallback;
     }
 

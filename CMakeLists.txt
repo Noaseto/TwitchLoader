@@ -30,7 +30,7 @@ target_link_libraries(twitch_loader PRIVATE Boost::beast Boost::asio Boost::syst
 
 FetchContent_Declare(
         nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP ON
 )
 FetchContent_MakeAvailable(nlohmann_json)
