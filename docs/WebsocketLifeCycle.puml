@@ -1,0 +1,42 @@
+@startuml
+==Init==
+title "Twitch Websocket lifecycle"
+->ws: start(async, at mod init or mod panel)
+' members definition
+participant twitchApi as api
+participant websocketClientClass as ws
+participant twitchEvent as event
+
+ws->ws:starts thread
+activate ws
+ws->event:eventsub.wss.twitch.tv
+event-->ws:welcmome_message\nWith a session ID
+note over ws:we have 10s before\nsession ID becomes invalid
+
+loop on desired topics
+note over api, ws:topics are the same as\nthe TwitchEventType enum
+ws->api:POST request, register topic
+api-->ws:HTTP status code\nhopefully 202
+api-->event:twitch magic so now twitch event can be sent\nover the registered websocket
+end
+
+==run==
+note over ws, event:see https://dev.twitch.tv/docs/eventsub/websocket-reference
+alt Keepalive
+note over ws, event: nothing done
+else notification
+note over ws,event:todo manage other events
+event -> ws:subscribed topic
+ws->ws:enqueues the TwitchEvent
+else todo manage ping, reconnect, revocation, close
+note over ws, event: these are simply ignored
+end
+
+==shutdown==
+->ws:stop (async, at mod shutdown or mod panel)
+ws->ws: sets error code to\noperation_aborted
+note over ws:At next thread loop, it will leave the loop
+ws->ws:thread shutdowns itself
+deactivate ws
+
+@enduml

@@ -13,9 +13,9 @@ add_subdirectory("${DUSKLIGHT_DIR}/sdk" dusklight-sdk EXCLUDE_FROM_ALL)
 add_mod(twitch_loader
         SOURCES src/mod.cpp
         MOD_JSON mod.json
-        RES_DIR res            # mod resources, including icon.png and banner.png
 )
 
+# there arne not enough fetched content for all build (android and ios missing ssl libs)
 include(FetchContent)
 set(BUILD_SHARED_LIBS OFF)
 set(BOOST_INCLUDE_LIBRARIES beast asio system)
@@ -30,7 +30,7 @@ target_link_libraries(twitch_loader PRIVATE Boost::beast Boost::asio Boost::syst
 
 FetchContent_Declare(
         nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+        URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP ON
 )
 FetchContent_MakeAvailable(nlohmann_json)

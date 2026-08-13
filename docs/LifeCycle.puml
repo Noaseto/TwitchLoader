@@ -1,81 +1,65 @@
 @startuml
+title Twitch Loader lifecycle
+
 ' members definition
-participant ConfigFile as cf
-box TwitchLoader
-    participant main as main
-    participant websocket as ws
-    participant listeners as navi
+box TwitchLoader #5BCEFA
+    participant Main as main
+    participant Twitch as twitch
+    participant Service as service
 end box
-participant TwitchApi as api
-box TwitchConsumer_Mods
-    participant consumerMain as naviMain
+box TwitchConsumer_Mods #F5A9B8
+    participant consumerMain as cmain
 end box
 
-participant Dusklight as dusk
-
-
-' init
-main -> main: initMod
+note over main,cmain:Before using this mod, please read the main readme on github to see how to make a twitch app\nand how to retrieve a OAuth token for the connection to work with twitch
+==Init==
+main -> main: mod_initialize
 activate main
-    main -> cf : read settings.conf
-    cf --> main : oauth key
-    main -> ws: init socket
-    ws -> api: boop
-    api --> ws:
-    ws --> main:
+    main -> main : registers config vars
+    main -> main : init mod panel view
+    main -> main : init twitch connection
+    note over main: see dedicated lifecycle diagram\nfor twitch interaction
+    main -> main : log OK
 deactivate main
 
 loop for each consummer
-    naviMain -> naviMain: initMod
-    activate naviMain
-    note over naviMain: Thanks to export/import mechanic.\nTwitchConsumer mods will init after TwitchLoader
-    deactivate naviMain
+    cmain -> cmain: initMod
+    activate cmain
+        note over cmain: Thanks to export/import mechanic.\nTwitchConsumer mods will init after TwitchLoader
+    deactivate cmain
 end
 
-
-api -> ws: TwitchEvent (async, could happen at any time)
-ws -> ws: socket.queue.add(event)
-
-' update
+==Update==
 note over main: updateMod is called each frame\nunrelated to fps, so its called at most 30 time per second
 main -> main: updateMod
 activate main
-    main -> navi: if queue != empty
-    navi -> navi: heyListen(TwitchEvent)
-    activate navi
-        loop for each consummer
-            navi -> naviMain: heyListen(TwitchEvent)
-            activate naviMain
-                naviMain -> dusk: stuff specific to this given mod
-                note over naviMain: Could also be a service for further nested behaviour\nNot forced to interact with dusklight
-                dusk --> naviMain:
-            deactivate naviMain
-            naviMain-->navi
-        end
-    deactivate navi
-    navi --> main:
-    main -> main: queue->pop()
-    note over main: the above arrow should be on the bar
+    main -> main: clears published event list
+    main -> main: fills published event list\nwith twitch event since last frame
 deactivate main
 
-naviMain->naviMain:updateMod
-activate naviMain
-    note over naviMain: i believe the updateMod is called with the same order as the init
-deactivate naviMain
-
-' destroy
 loop for each consummer
-    naviMain -> naviMain: shutdownMod
-    activate naviMain
-    note over naviMain: Thanks to export/import mechanic.\nTwitchConsumer mods will shutdown before TwitchLoader
-    deactivate naviMain
+    cmain->cmain:updateMod
+    activate cmain
+        note over cmain: You are not forced to call get_events\nBut then, why are you a consumer?
+        cmain -> service:get_events
+        note over service, cmain:see twitchLoaderService.h
+        service --> cmain: twitch events\nsince last frame
+        cmain -> cmain: stuff specific to this given mod
+        note over cmain: Could be dusklight edits\nOr also be a service for further nested behaviour\nNot forced to interact with dusklight
+    deactivate cmain
+end
+
+==shutdown==
+loop for each consummer
+    cmain -> cmain: shutdownMod
+    activate cmain
+    note over cmain: Thanks to export/import mechanic.\nTwitchConsumer mods will shutdown before TwitchLoader
+    deactivate cmain
 end
 
 
 main -> main: shutdownMod
 activate main
-    main->main:stop socket's thread
-    main->main: delete socket
+    main->main:stop twitch connection
 deactivate main
-note over main: the above arrow should be on the bar
 @enduml
