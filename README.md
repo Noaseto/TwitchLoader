@@ -23,8 +23,10 @@ To use this mod, you need a Twitch OAuth token with those permissions
 | moderator:read:followers                       | View new follower info        |
 | user: read:chat                                | so you can mhhh read chat     |
 
-https://dev.twitch.tv/console/apps/
-create an app there with whatever name you like redirect url: http://localhost
+Go to `https://dev.twitch.tv/console/apps/` and create an app there with whatever name you like.
+
+redirect url: `http://localhost`
+
 Game integration - Public
 
 We now have a client id, it will be useful several times. Then you need to copy the client id in the following link so
@@ -43,7 +45,7 @@ http://localhost/#access_token=<CopyThis\>&scope=user%253Aread...
 ```
 
 We need to keep the access token, it is the OAuth token you must fill in the mod panel options. You also need the client
-id (right now it is not user friendly to find it)
+id (right now it is not user-friendly to find it)
 
 ## Building
 
@@ -69,7 +71,11 @@ documentation for building and then adapting the few more needed here)
 
 I am using [Boost's beast library](https://github.com/boostorg/boost) for the websockets and I have absolutely no clue
 how license works, please do tell me if I'm doing anything forbidden. Also, feel free to use this mod as a base for
-twitch integration. I like sequence diagrams, they help to properly visualize behaviors of what's happening in the code.
+twitch integration.
+
+I like sequence diagrams, they help to properly visualize behaviors of what's happening in the code.
+
+Be silly, coding is (should be) a fun activity, put funny comments, spaces, clear code.
 
 ## TODOs
 
@@ -79,7 +85,7 @@ Not in a particular order
 - Rename variable with same convention (Snake case). I used camelCase as a reflex from Java
 - Clarifies the mod versionning convention
 - Explain how to setup the twitch client id and retrieve auth token (could it be automated via twitch API ?)
-- properly consider other wobsoket events (the reconnect one first I believe)
+- properly consider other websocket events (the reconnect one first I believe)
 
 ## My other mods to be used with TwitchLoader
 
