@@ -7,11 +7,11 @@
 #include "internationalisation.h"
 #include "twitchCommunication/ws_client.hpp"
 
-inline UiWindowHandle g_controlsWindow = 0;
+inline UiWindowHandle g_controlsModConfig = 0;
 
 // add specific fields
 inline void add_toggle(
-    UiElementHandle pane, const char* label, ConfigVarHandle cvar, const char* help) {
+    const UiElementHandle pane, const char* label, const ConfigVarHandle cvar, const char* help) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.kind = UI_CONTROL_TOGGLE;
     control.label = label;
@@ -22,7 +22,7 @@ inline void add_toggle(
 }
 
 inline void add_string(
-    UiElementHandle pane, const char* label, ConfigVarHandle cvar, const char* help) {
+    const UiElementHandle pane, const char* label, const ConfigVarHandle cvar, const char* help) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.kind = UI_CONTROL_STRING;
     control.label = label;
@@ -33,7 +33,7 @@ inline void add_string(
 }
 
 inline void add_button(
-    UiElementHandle pane, const char* label, const char* help, const UiPressedFn onPressed) {
+    const UiElementHandle pane, const char* label, const char* help, const UiPressedFn onPressed) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.kind = UI_CONTROL_BUTTON;
     control.label = label;
@@ -48,15 +48,15 @@ inline void onToggleConnection(ModContext*, void*) {
     desc.title = ACTIONS_TOGGLE.data();
     desc.body_rml =
         g_ws.isStarted() ? TOGGLE_POPUP_TEXT_STOP.data() : TOGGLE_POPUP_TEXT_START.data();
-    std::string toggleText =
+    const std::string toggleText =
         g_ws.isStarted() ? TOGGLE_POPUP_BUTTON_STOP.data() : TOGGLE_POPUP_BUTTON_START.data();
     UiDialogHandle dialog_handle;
     desc.action_count = 2;
-    UiDialogAction cancelAction = {.label = TOGGLE_POPUP_BUTTON_CANCEL.data(),
+    const UiDialogAction cancelAction = {.label = TOGGLE_POPUP_BUTTON_CANCEL.data(),
         .on_pressed = [](ModContext*, UiDialogHandle, void*) {},
         .user_data = NULL,
         .keep_open = false};
-    UiDialogAction toggleAction = {.label = toggleText.c_str(),
+    const UiDialogAction toggleAction = {.label = toggleText.c_str(),
         .on_pressed = [](ModContext*, UiDialogHandle, void*) { g_ws.toggleSocket(); },
         .user_data = NULL,
         .keep_open = false};
@@ -67,8 +67,8 @@ inline void onToggleConnection(ModContext*, void*) {
 }
 
 // tab management
-inline ModResult buildTwitchConfigTab(
-    ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
+inline ModResult buildTwitchConfigTab(ModContext*, UiWindowHandle, const UiElementHandle left,
+    const UiElementHandle right, void*, ModError*) {
     (void)right;
     svc_ui->pane_add_section(mod_ctx, left, TWITCH_SECTION_NAME.data());
     add_string(left, TWITCH_USERNAME.data(), g_cvarUsername, TWITCH_USERNAME_DESCRIPTION.data());
@@ -82,8 +82,8 @@ inline ModResult buildTwitchConfigTab(
     return MOD_OK;
 }
 
-inline ModResult buildTwitchSecretTab(
-    ModContext*, UiWindowHandle, UiElementHandle left, UiElementHandle right, void*, ModError*) {
+inline ModResult buildTwitchSecretTab(ModContext*, UiWindowHandle, const UiElementHandle left,
+    const UiElementHandle right, void*, ModError*) {
     (void)right;
     svc_ui->pane_add_section(mod_ctx, left, SECRETS_SECTION_NAME.data());
     add_string(
@@ -96,7 +96,7 @@ inline ModResult buildTwitchSecretTab(
 
 // Mod config management
 inline void onOpenModConfig(ModContext*, void*) {
-    if (g_controlsWindow != 0) {
+    if (g_controlsModConfig != 0) {
         return;
     }
     UiTabDesc tabs[2] = {UI_TAB_DESC_INIT, UI_TAB_DESC_INIT};
@@ -107,13 +107,13 @@ inline void onOpenModConfig(ModContext*, void*) {
     UiWindowDesc desc = UI_WINDOW_DESC_INIT;
     desc.tabs = tabs;
     desc.tab_count = 2;
-    desc.on_closed = [](ModContext*, UiWindowHandle, void*) { g_controlsWindow = 0; };
-    if (svc_ui->window_push(mod_ctx, &desc, &g_controlsWindow) != MOD_OK) {
+    desc.on_closed = [](ModContext*, UiWindowHandle, void*) { g_controlsModConfig = 0; };
+    if (svc_ui->window_push(mod_ctx, &desc, &g_controlsModConfig) != MOD_OK) {
         svc_log->error(mod_ctx, TWITCH_LOADER_PANE_FAILED.data());
     }
 }
 
-inline ModResult buildMainPanel(ModContext*, UiElementHandle pane, void*, ModError*) {
+inline ModResult buildMainPanel(ModContext*, const UiElementHandle pane, void*, ModError*) {
     UiControlDesc control = UI_CONTROL_DESC_INIT;
     control.label = TWITCH_LOADER_OPTIONS_BUTTON.data();
     control.kind = UI_CONTROL_BUTTON;
@@ -121,8 +121,4 @@ inline ModResult buildMainPanel(ModContext*, UiElementHandle pane, void*, ModErr
     svc_ui->pane_add_control(mod_ctx, pane, &control, nullptr);
 
     return MOD_OK;
-}
-
-inline ModResult clearPanels() {
-    // todo clear what must be, is there anything to clear ?
 }

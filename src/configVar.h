@@ -37,7 +37,7 @@ inline ModResult register_bool_option(
 
 // ----------------------- Options getters -----------------------
 
-inline std::string get_string_option(ConfigVarHandle handle, std::string fallback = "") {
+inline std::string get_string_option(const ConfigVarHandle handle, std::string fallback = "") {
     size_t handleSize;
     if (handle == 0 || svc_config->get_string(mod_ctx, handle, NULL, 0, &handleSize) != MOD_OK) {
         return fallback;
@@ -52,7 +52,7 @@ inline std::string get_string_option(ConfigVarHandle handle, std::string fallbac
     return handleValue;
 }
 
-inline bool get_bool_option(ConfigVarHandle handle, bool fallback) {
+inline bool get_bool_option(const ConfigVarHandle handle, const bool fallback) {
     bool value = fallback;
     if (handle == 0 || svc_config->get_bool(mod_ctx, handle, &value) != MOD_OK) {
         return fallback;
@@ -68,6 +68,8 @@ inline ConfigVarHandle g_cvarClientId = 0;
 inline ConfigVarHandle g_cvarOAuth = 0;
 inline ConfigVarHandle g_cvarAutoStart = 0;
 
+// these magic strings are the values stored in config file for instance
+// "mod.io_github_noaseto_twitchloader.autoStart": true/false,
 inline ModResult registerVariables(ModError* error) {
     ModResult result = register_string_option("username", "", g_cvarUsername, error);
     if (result != MOD_OK) {

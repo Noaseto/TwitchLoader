@@ -1,9 +1,7 @@
-// basic mods include
 #include "mods/service.hpp"
 #include "mods/svc/log.h"
 #include "mods/svc/ui.h"
 
-// this mod related imports
 #include "configVar.h"
 #include "internationalisation.h"
 #include "panelManagement.h"

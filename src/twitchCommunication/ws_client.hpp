@@ -244,7 +244,7 @@ private:
                     break;
                 }
                 if (ec) {
-                    // else could be some network error ? Everything explodes
+                    // else could be some network error ? Everything explodes (Me being dramatic)
                     throw beast::system_error(ec);
                 }
 
