@@ -72,8 +72,8 @@ static ModResult get_events(ModContext*, const TwitchEvent** outEvents, uint32_t
     return MOD_OK;
 }
 
-constexpr TwitchEventsService g_service{
-    .header = SERVICE_HEADER(TwitchEventsService, MY_MOD_SERVICE_MAJOR, MY_MOD_SERVICE_MINOR),
+constexpr TwitchLoaderService g_service{
+    .header = SERVICE_HEADER(TwitchLoaderService, MY_MOD_SERVICE_MAJOR, MY_MOD_SERVICE_MINOR),
     .get_events = get_events,
 };
 EXPORT_SERVICE(g_service);

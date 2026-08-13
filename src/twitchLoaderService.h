@@ -22,11 +22,11 @@ typedef struct TwitchEvent {
     const char* data;
 } TwitchEvent;
 
-typedef struct TwitchEventsService {
+typedef struct TwitchLoaderService {
     ServiceHeader header;
     ModResult (*get_events)(
         ModContext* ctx, const TwitchEvent** outEvents, uint32_t* outEventCount);
-} TwitchEventsService;
+} TwitchLoaderService;
 
 #define MY_MOD_SERVICE_ID "io.github.noaseto.twitchloader"
 #define MY_MOD_SERVICE_MAJOR 1u
@@ -35,7 +35,7 @@ typedef struct TwitchEventsService {
 #ifdef __cplusplus
 #include "mods/service.hpp"
 template <>
-struct mods::ServiceTraits<TwitchEventsService> {
+struct mods::ServiceTraits<TwitchLoaderService> {
     static constexpr const char* id = MY_MOD_SERVICE_ID;
     static constexpr uint16_t major_version = MY_MOD_SERVICE_MAJOR;
     static constexpr uint16_t minor_version = MY_MOD_SERVICE_MINOR;
