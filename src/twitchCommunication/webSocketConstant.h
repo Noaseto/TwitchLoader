@@ -1,6 +1,5 @@
 /*
-Mhhh, could this be done with defines ? this would be my java slope then.
-have a coffee c[_]
+Here is a coffee or teacup as you wish c[_]
 */
 
 #pragma once
