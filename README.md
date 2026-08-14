@@ -89,8 +89,11 @@ Not in a particular order
 
 ## My other mods to be used with TwitchLoader
 
-[Twitch chat in dusk](https://github.com/Noaseto/TwitchConsumer_TwitchChat) (I want for it to have a transparant window,
-this is not in it yet)
+[Demo mod](https://github.com/Noaseto/TwitchConsumer_Demo): To see how another mod interacts with it, it is minimalistic and has basic feature when typing in chat, having a follow or a sub.
+
+### Coming later
+
+[Twitch chat in dusk](https://github.com/Noaseto/TwitchConsumer_TwitchChat)
 
 ## Anything else
 
