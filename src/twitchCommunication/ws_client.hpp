@@ -49,7 +49,7 @@ public:
             const std::string client_id = get_string_option(g_config_var_client_id);
             const std::string oauth = get_string_option(g_config_var_oauth);
             const std::string username = get_string_option(g_config_var_username);
-            const std::string twitch_id = get_string_option(g_cconfig_var_twitch_id);
+            const std::string twitch_id = get_string_option(g_config_var_twitch_id);
             if (!client_id.empty() && !oauth.empty() && !username.empty() && !twitch_id.empty()) {
                 start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(), client_id, oauth, username,
                     twitch_id);

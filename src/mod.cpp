@@ -15,7 +15,7 @@ IMPORT_SERVICE(ConfigService, svc_config);
 
 WsClient g_ws;
 extern "C" {
-static std::vector<TwitchEvent> publishedEvents;
+static std::vector<TwitchEvent> published_events;
 
 MOD_EXPORT ModResult mod_initialize(ModError* error) {
     // set config var
@@ -25,9 +25,9 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
     }
 
     // init mod view menu
-    UiModsPanelDesc panelDesc = UI_MODS_PANEL_DESC_INIT;
-    panelDesc.build = buildMainPanel;
-    result = svc_ui->register_mods_panel(mod_ctx, &panelDesc);
+    UiModsPanelDesc ui_mods_panel_desc = UI_MODS_PANEL_DESC_INIT;
+    ui_mods_panel_desc.build = build_main_panel;
+    result = svc_ui->register_mods_panel(mod_ctx, &ui_mods_panel_desc);
     if (result != MOD_OK) {
         return result;
     }
@@ -43,12 +43,12 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
 
 MOD_EXPORT ModResult mod_update(ModError*) {
     // Clear the previous frame's events
-    publishedEvents.clear();
-    publishedEvents.reserve(g_ws.get_messages_length());
+    published_events.clear();
+    published_events.reserve(g_ws.get_messages_length());
 
-    TwitchEvent twitchEvent;
-    while (g_ws.try_pop_message(twitchEvent)) {
-        publishedEvents.push_back(twitchEvent);
+    TwitchEvent twitch_event;
+    while (g_ws.try_pop_message(twitch_event)) {
+        published_events.push_back(twitch_event);
     }
     return MOD_OK;
 }
@@ -63,12 +63,13 @@ MOD_EXPORT ModResult mod_shutdown(ModError*) {
 // Service function(s) implementation, all of them are called by mod consumers
 // todo, should these be defined in a dedicated file as the sdk does
 
-static ModResult get_events(ModContext*, const TwitchEvent** outEvents, uint32_t* outEventCount) {
-    if (outEvents == nullptr || outEventCount == nullptr) {
+static ModResult get_events(
+    ModContext*, const TwitchEvent** out_events, uint32_t* out_event_count) {
+    if (out_events == nullptr || out_event_count == nullptr) {
         return MOD_INVALID_ARGUMENT;
     }
-    *outEvents = publishedEvents.empty() ? nullptr : publishedEvents.data();
-    *outEventCount = static_cast<uint32_t>(publishedEvents.size());
+    *out_events = published_events.empty() ? nullptr : published_events.data();
+    *out_event_count = static_cast<uint32_t>(published_events.size());
     return MOD_OK;
 }
 

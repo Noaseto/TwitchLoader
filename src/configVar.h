@@ -64,7 +64,7 @@ inline bool get_bool_option(const ConfigVarHandle handle, const bool fallback) {
 // ----------------------- Register this mod variables -----------------------
 
 inline ConfigVarHandle g_config_var_username = 0;
-inline ConfigVarHandle g_cconfig_var_twitch_id = 0;
+inline ConfigVarHandle g_config_var_twitch_id = 0;
 inline ConfigVarHandle g_config_var_client_id = 0;
 inline ConfigVarHandle g_config_var_oauth = 0;
 inline ConfigVarHandle g_config_var_auto_start = 0;
@@ -76,7 +76,7 @@ inline ModResult register_variables(ModError* error) {
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchId", "", g_cconfig_var_twitch_id, error);
+    result = register_string_option("twitchId", "", g_config_var_twitch_id, error);
     if (result != MOD_OK) {
         return result;
     }
