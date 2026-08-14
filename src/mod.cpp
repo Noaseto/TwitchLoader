@@ -34,7 +34,7 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
 
     // at startup, thread is not running, the toggle will launch the start
     if (get_bool_option(g_cvarAutoStart, false)) {
-        g_ws.toggleSocket();
+        g_ws.toggle_socket();
     }
 
     svc_log->info(mod_ctx, LOG_MOD_INIT.data());

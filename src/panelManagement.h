@@ -47,9 +47,9 @@ inline void onToggleConnection(ModContext*, void*) {
     UiDialogDesc desc = UI_DIALOG_DESC_INIT;
     desc.title = ACTIONS_TOGGLE.data();
     desc.body_rml =
-        g_ws.isStarted() ? TOGGLE_POPUP_TEXT_STOP.data() : TOGGLE_POPUP_TEXT_START.data();
+        g_ws.is_started() ? TOGGLE_POPUP_TEXT_STOP.data() : TOGGLE_POPUP_TEXT_START.data();
     const std::string toggleText =
-        g_ws.isStarted() ? TOGGLE_POPUP_BUTTON_STOP.data() : TOGGLE_POPUP_BUTTON_START.data();
+        g_ws.is_started() ? TOGGLE_POPUP_BUTTON_STOP.data() : TOGGLE_POPUP_BUTTON_START.data();
     UiDialogHandle dialog_handle;
     desc.action_count = 2;
     const UiDialogAction cancelAction = {.label = TOGGLE_POPUP_BUTTON_CANCEL.data(),
@@ -57,7 +57,7 @@ inline void onToggleConnection(ModContext*, void*) {
         .user_data = NULL,
         .keep_open = false};
     const UiDialogAction toggleAction = {.label = toggleText.c_str(),
-        .on_pressed = [](ModContext*, UiDialogHandle, void*) { g_ws.toggleSocket(); },
+        .on_pressed = [](ModContext*, UiDialogHandle, void*) { g_ws.toggle_socket(); },
         .user_data = NULL,
         .keep_open = false};
     const UiDialogAction actions[] = {cancelAction, toggleAction};
