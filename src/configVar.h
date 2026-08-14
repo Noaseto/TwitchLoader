@@ -12,24 +12,24 @@
 // ----------------------- Register options -----------------------
 
 inline ModResult register_string_option(
-    const char* name, const char* defaultValue, ConfigVarHandle& outHandle, ModError* error) {
-    ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
-    cvarDesc.name = name;
-    cvarDesc.type = CONFIG_VAR_STRING;
-    cvarDesc.default_string = defaultValue;
-    if (svc_config->register_var(mod_ctx, &cvarDesc, &outHandle) != MOD_OK) {
+    const char* name, const char* default_value, ConfigVarHandle& out_handle, ModError* error) {
+    ConfigVarDesc config_var_desc = CONFIG_VAR_DESC_INIT;
+    config_var_desc.name = name;
+    config_var_desc.type = CONFIG_VAR_STRING;
+    config_var_desc.default_string = default_value;
+    if (svc_config->register_var(mod_ctx, &config_var_desc, &out_handle) != MOD_OK) {
         return mods::set_error(error, MOD_ERROR, REGISTER_CONFIG_VAR_FAILED.data());
     }
     return MOD_OK;
 }
 
 inline ModResult register_bool_option(
-    const char* name, const bool defaultValue, ConfigVarHandle& outHandle, ModError* error) {
-    ConfigVarDesc cvarDesc = CONFIG_VAR_DESC_INIT;
-    cvarDesc.name = name;
-    cvarDesc.type = CONFIG_VAR_BOOL;
-    cvarDesc.default_bool = defaultValue;
-    if (svc_config->register_var(mod_ctx, &cvarDesc, &outHandle) != MOD_OK) {
+    const char* name, const bool default_value, ConfigVarHandle& out_handle, ModError* error) {
+    ConfigVarDesc config_var_desc = CONFIG_VAR_DESC_INIT;
+    config_var_desc.name = name;
+    config_var_desc.type = CONFIG_VAR_BOOL;
+    config_var_desc.default_bool = default_value;
+    if (svc_config->register_var(mod_ctx, &config_var_desc, &out_handle) != MOD_OK) {
         return mods::set_error(error, MOD_ERROR, REGISTER_CONFIG_VAR_FAILED.data());
     }
     return MOD_OK;
@@ -38,18 +38,19 @@ inline ModResult register_bool_option(
 // ----------------------- Options getters -----------------------
 
 inline std::string get_string_option(const ConfigVarHandle handle, std::string fallback = "") {
-    size_t handleSize;
-    if (handle == 0 || svc_config->get_string(mod_ctx, handle, NULL, 0, &handleSize) != MOD_OK) {
+    size_t handle_size;
+    if (handle == 0 || svc_config->get_string(mod_ctx, handle, NULL, 0, &handle_size) != MOD_OK) {
         return fallback;
     }
 
-    std::string handleValue(handleSize, '\0');
-    if (svc_config->get_string(mod_ctx, handle, handleValue.data(), handleSize + 1, NULL) != MOD_OK)
+    std::string handle_value(handle_size, '\0');
+    if (svc_config->get_string(mod_ctx, handle, handle_value.data(), handle_size + 1, NULL) !=
+        MOD_OK)
     {
         return fallback;
     }
 
-    return handleValue;
+    return handle_value;
 }
 
 inline bool get_bool_option(const ConfigVarHandle handle, const bool fallback) {
@@ -62,32 +63,32 @@ inline bool get_bool_option(const ConfigVarHandle handle, const bool fallback) {
 
 // ----------------------- Register this mod variables -----------------------
 
-inline ConfigVarHandle g_cvarUsername = 0;
-inline ConfigVarHandle g_cvarTwitchId = 0;
-inline ConfigVarHandle g_cvarClientId = 0;
-inline ConfigVarHandle g_cvarOAuth = 0;
-inline ConfigVarHandle g_cvarAutoStart = 0;
+inline ConfigVarHandle g_config_var_username = 0;
+inline ConfigVarHandle g_cconfig_var_twitch_id = 0;
+inline ConfigVarHandle g_config_var_client_id = 0;
+inline ConfigVarHandle g_config_var_oauth = 0;
+inline ConfigVarHandle g_config_var_auto_start = 0;
 
 // these magic strings are the values stored in config file for instance
 // "mod.io_github_noaseto_twitchloader.autoStart": true/false,
-inline ModResult registerVariables(ModError* error) {
-    ModResult result = register_string_option("username", "", g_cvarUsername, error);
+inline ModResult register_variables(ModError* error) {
+    ModResult result = register_string_option("username", "", g_config_var_username, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchId", "", g_cvarTwitchId, error);
+    result = register_string_option("twitchId", "", g_cconfig_var_twitch_id, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchClientId", "", g_cvarClientId, error);
+    result = register_string_option("twitchClientId", "", g_config_var_client_id, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_string_option("twitchOAuth", "", g_cvarOAuth, error);
+    result = register_string_option("twitchOAuth", "", g_config_var_oauth, error);
     if (result != MOD_OK) {
         return result;
     }
-    result = register_bool_option("autoStart", false, g_cvarAutoStart, error);
+    result = register_bool_option("autoStart", false, g_config_var_auto_start, error);
     if (result != MOD_OK) {
         return result;
     }

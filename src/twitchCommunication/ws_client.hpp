@@ -46,10 +46,10 @@ public:
     void toggle_socket() {
         if (!m_running) {
             // todo username unused, I'd rather have the twitch_id to be unused instead
-            const std::string client_id = get_string_option(g_cvarClientId);
-            const std::string oauth = get_string_option(g_cvarOAuth);
-            const std::string username = get_string_option(g_cvarUsername);
-            const std::string twitch_id = get_string_option(g_cvarTwitchId);
+            const std::string client_id = get_string_option(g_config_var_client_id);
+            const std::string oauth = get_string_option(g_config_var_oauth);
+            const std::string username = get_string_option(g_config_var_username);
+            const std::string twitch_id = get_string_option(g_cconfig_var_twitch_id);
             if (!client_id.empty() && !oauth.empty() && !username.empty() && !twitch_id.empty()) {
                 start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(), client_id, oauth, username,
                     twitch_id);

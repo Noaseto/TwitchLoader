@@ -71,12 +71,12 @@ inline ModResult buildTwitchConfigTab(ModContext*, UiWindowHandle, const UiEleme
     const UiElementHandle right, void*, ModError*) {
     (void)right;
     svc_ui->pane_add_section(mod_ctx, left, TWITCH_SECTION_NAME.data());
-    add_string(left, TWITCH_USERNAME.data(), g_cvarUsername, TWITCH_USERNAME_DESCRIPTION.data());
-    add_string(left, TWITCH_USER_ID.data(), g_cvarTwitchId, TWITCH_USER_ID_DESCRIPTION.data());
+    add_string(left, TWITCH_USERNAME.data(), g_config_var_username, TWITCH_USERNAME_DESCRIPTION.data());
+    add_string(left, TWITCH_USER_ID.data(), g_cconfig_var_twitch_id, TWITCH_USER_ID_DESCRIPTION.data());
 
     svc_ui->pane_add_section(mod_ctx, left, ACTIONS_SECTION_NAME.data());
     add_toggle(
-        left, ACTIONS_AUTO_START.data(), g_cvarAutoStart, ACTIONS_AUTO_START_DESCRIPTION.data());
+        left, ACTIONS_AUTO_START.data(), g_config_var_auto_start, ACTIONS_AUTO_START_DESCRIPTION.data());
     add_button(left, ACTIONS_TOGGLE.data(), ACTIONS_TOGGLE_DESCRIPTION.data(), onToggleConnection);
 
     return MOD_OK;
@@ -87,9 +87,9 @@ inline ModResult buildTwitchSecretTab(ModContext*, UiWindowHandle, const UiEleme
     (void)right;
     svc_ui->pane_add_section(mod_ctx, left, SECRETS_SECTION_NAME.data());
     add_string(
-        left, SECRETS_CLIENT_ID.data(), g_cvarClientId, SECRETS_CLIENT_ID_DESCRIPTION.data());
+        left, SECRETS_CLIENT_ID.data(), g_config_var_client_id, SECRETS_CLIENT_ID_DESCRIPTION.data());
     add_string(
-        left, SECRETS_OAUTH_TOKEN.data(), g_cvarOAuth, SECRETS_OAUTH_TOKEN_DESCRIPTION.data());
+        left, SECRETS_OAUTH_TOKEN.data(), g_config_var_oauth, SECRETS_OAUTH_TOKEN_DESCRIPTION.data());
 
     return MOD_OK;
 }

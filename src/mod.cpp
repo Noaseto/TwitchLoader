@@ -19,7 +19,7 @@ static std::vector<TwitchEvent> publishedEvents;
 
 MOD_EXPORT ModResult mod_initialize(ModError* error) {
     // set config var
-    ModResult result = registerVariables(error);
+    ModResult result = register_variables(error);
     if (result != MOD_OK) {
         return result;
     }
@@ -33,7 +33,7 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
     }
 
     // at startup, thread is not running, the toggle will launch the start
-    if (get_bool_option(g_cvarAutoStart, false)) {
+    if (get_bool_option(g_config_var_auto_start, false)) {
         g_ws.toggle_socket();
     }
 
