@@ -25,7 +25,7 @@ typedef struct TwitchEvent {
 typedef struct TwitchLoaderService {
     ServiceHeader header;
     ModResult (*get_events)(
-        ModContext* ctx, const TwitchEvent** outEvents, uint32_t* outEventCount);
+        ModContext* ctx, const TwitchEvent** out_events, uint32_t* out_event_count);
 } TwitchLoaderService;
 
 #define MY_MOD_SERVICE_ID "io.github.noaseto.twitchloader"
