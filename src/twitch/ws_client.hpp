@@ -22,7 +22,7 @@ public:
 private:
     void start(const std::string& host, const std::string& port, const std::string& client_id,
         const std::string& oauth, const std::string& username, const std::string& user_id);
-    void push(TwitchEventType type, const std::string& msg);
+    void push(TwitchEventType type, const std::string& message);
     void run(const std::string& host, const std::string& port, const std::string& client_id,
         const std::string& oauth, const std::string& username, const std::string& user_id);
 
