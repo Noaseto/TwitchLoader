@@ -2,8 +2,8 @@ name: Build
 
 on:
   push:
-    branches: ["*"]
-    tags: ["*"]
+    branches: [ "*" ]
+    tags: [ "*" ]
   pull_request:
 
 env:
@@ -44,6 +44,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Read pinned Dusklight version
         id: dusklight
