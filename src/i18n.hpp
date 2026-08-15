@@ -67,7 +67,7 @@ inline constexpr std::string_view SECRETS_OAUTH_TOKEN_DESCRIPTION = "Your token"
 inline constexpr std::string_view TWITCH_LOADER_PANE_FAILED =
     "failed to open twitch loader secrets window";
 
-// logs, should these really be translated ?
+// logs, should these really be translated ? most probably no
 inline constexpr std::string_view LOG_MOD_INIT = "Twitch loader started";
 inline constexpr std::string_view LOG_MOD_STOP = "Twitch loader stopped";
 inline constexpr std::string_view LOG_START_WEBSOCKET = "Starts websocket connection";

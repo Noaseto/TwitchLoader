@@ -1,8 +1,8 @@
 #pragma once
 
 #include <atomic>
-// todo remove dependency? I want to be agnostic of the way we communicate with twitch Events
-// see https://arne-mertz.de/2019/01/the-pimpl-idiom/
+// todo remove dependency? I think I want to be agnostic of the way we communicate with twitch
+// Events see https://arne-mertz.de/2019/01/the-pimpl-idiom/
 #include <boost/asio/ip/tcp.hpp>
 #include <mutex>
 #include <queue>

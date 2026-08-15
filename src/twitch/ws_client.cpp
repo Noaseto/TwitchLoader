@@ -28,12 +28,14 @@ namespace ssl = boost::asio::ssl;
 using json = nlohmann::json;
 using tcp = boost::asio::ip::tcp;
 
+namespace {
 struct TwitchSubscription {
     // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
     TwitchEventType event_type;
     std::string type;
     std::string version;
 };
+}  // namespace
 
 void WsClient::toggle_socket() {
     if (!m_running) {
@@ -98,17 +100,17 @@ void WsClient::start(const std::string& host, const std::string& port, const std
 
 void WsClient::push(const TwitchEventType type, const std::string& message) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    TwitchEvent twitchEvent = {.struct_size = sizeof(TwitchEvent), .type = type, .data = NULL};
+    TwitchEvent twitch_event = {.struct_size = sizeof(TwitchEvent), .type = type, .data = NULL};
 
     // this is needed for the mod communication to consummers
     char* copy = new char[message.size() + 1];
     std::memcpy(copy, message.c_str(), message.size() + 1);
-    twitchEvent.data = copy;
-    m_messages.push(twitchEvent);
+    twitch_event.data = copy;
+    m_messages.push(twitch_event);
 }
 
-void WsClient::run(const std::string& host, const std::string& port, const std::string& clientId,
-    const std::string& oauth, const std::string& username, const std::string& userId) {
+void WsClient::run(const std::string& host, const std::string& port, const std::string& client_id,
+    const std::string& oauth, const std::string& username, const std::string& user_id) {
     // todo split into several method, it feels like it could be, init, running, shutdown
     net::io_context ioc;
     ssl::context ctx{ssl::context::tlsv12_client};
@@ -182,11 +184,11 @@ void WsClient::run(const std::string& host, const std::string& port, const std::
             json condition;
             // here I made the choice that the one using the mod wants to interact with their
             // channel as themselves
-            condition[JSON_BROADCASTER_USER_ID.data()] = userId;
+            condition[JSON_BROADCASTER_USER_ID.data()] = user_id;
             if (topic.event_type == TwitchEventType::ChatMessage) {
-                condition[JSON_USER_ID.data()] = userId;
+                condition[JSON_USER_ID.data()] = user_id;
             } else if (topic.event_type == TwitchEventType::Follow) {
-                condition[JSON_MODERATOR_USER_ID.data()] = userId;
+                condition[JSON_MODERATOR_USER_ID.data()] = user_id;
             }
 
             json body;
@@ -201,7 +203,7 @@ void WsClient::run(const std::string& host, const std::string& port, const std::
             request.set(beast::http::field::host, TWITCH_API_URL.data());
             request.set(beast::http::field::authorization, TWITCH_API_AUTHORIZATION.data() + oauth);
             request.set(http::field::content_type, TWITCH_API_CONTENT_TYPE_JSON.data());
-            request.set(TWITCH_API_CLIENT_ID.data(), clientId);
+            request.set(TWITCH_API_CLIENT_ID.data(), client_id);
             request.body() = body.dump();
             request.prepare_payload();
 
