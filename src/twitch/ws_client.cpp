@@ -21,10 +21,11 @@
 #include <string>
 #include <thread>
 
-#include "../configVar.h"
-#include "../internationalisation.h"
-#include "../twitchLoaderService.h"
-#include "webSocketConstant.h"
+#include "../config_var.hpp"
+#include "../i18n.hpp"
+#include "../twitch_loader_service.h"
+#include "ws_constant.hpp"
+#include "ws_client.hpp"
 
 namespace beast = boost::beast;
 namespace websocket = beast::websocket;
@@ -61,17 +62,6 @@ public:
         }
     }
 
-    void start(const std::string& host, const std::string& port, const std::string& clientId,
-        const std::string& oauth, const std::string& username, const std::string& userId) {
-        if (!m_running) {
-            m_running = true;
-            svc_log->info(mod_ctx, LOG_START_WEBSOCKET.data());
-            m_thread = std::thread([this, host, port, clientId, oauth, username, userId] {
-                run(host, port, clientId, oauth, username, userId);
-            });
-        }
-    }
-
     void stop() {
         // Stops the thread running loop and puts an error code, so the thread can stops gracefully
         // itself next iteration
@@ -101,6 +91,17 @@ public:
     int get_messages_length() const { return m_messages.size(); }
 
 private:
+    void start(const std::string& host, const std::string& port, const std::string& clientId,
+        const std::string& oauth, const std::string& username, const std::string& userId) {
+        if (!m_running) {
+            m_running = true;
+            svc_log->info(mod_ctx, LOG_START_WEBSOCKET.data());
+            m_thread = std::thread([this, host, port, clientId, oauth, username, userId] {
+                run(host, port, clientId, oauth, username, userId);
+            });
+        }
+    }
+
     void push(TwitchEventType type, const std::string& msg) {
         std::lock_guard<std::mutex> lock(m_mutex);
         TwitchEvent twitchEvent = {.struct_size = sizeof(TwitchEvent), .type = type, .data = NULL};

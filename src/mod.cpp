@@ -2,11 +2,11 @@
 #include "mods/svc/log.h"
 #include "mods/svc/ui.h"
 
-#include "configVar.h"
-#include "internationalisation.h"
-#include "panelManagement.h"
-#include "twitchCommunication/ws_client.hpp"
-#include "twitchLoaderService.h"
+#include "config_var.hpp"
+#include "i18n.hpp"
+#include "panel_management.hpp"
+#include "twitch/ws_client.hpp"
+#include "twitch_loader_service.h"
 
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);

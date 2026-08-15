@@ -7,7 +7,7 @@
 #pragma once
 
 #include <string>
-#include "internationalisation.h"
+#include "i18n.hpp"
 
 // ----------------------- Register options -----------------------
 

@@ -3,9 +3,9 @@
 #include "mods/svc/config.h"
 #include "mods/svc/ui.h"
 
-#include "configVar.h"
-#include "internationalisation.h"
-#include "twitchCommunication/ws_client.hpp"
+#include "config_var.hpp"
+#include "i18n.hpp"
+#include "twitch/ws_client.hpp"
 
 inline UiWindowHandle g_controlsModConfig = 0;
 
