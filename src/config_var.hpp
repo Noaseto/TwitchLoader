@@ -63,8 +63,6 @@ inline bool get_bool_option(const ConfigVarHandle handle, const bool fallback) {
 
 // ----------------------- Register this mod variables -----------------------
 
-inline ConfigVarHandle g_config_var_username = 0;
-inline ConfigVarHandle g_config_var_twitch_id = 0;
 inline ConfigVarHandle g_config_var_client_id = 0;
 inline ConfigVarHandle g_config_var_oauth = 0;
 inline ConfigVarHandle g_config_var_auto_start = 0;
@@ -72,15 +70,7 @@ inline ConfigVarHandle g_config_var_auto_start = 0;
 // these magic strings are the values stored in config file for instance
 // "mod.io_github_noaseto_twitchloader.autoStart": true/false,
 inline ModResult register_variables(ModError* error) {
-    ModResult result = register_string_option("username", "", g_config_var_username, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_string_option("twitchId", "", g_config_var_twitch_id, error);
-    if (result != MOD_OK) {
-        return result;
-    }
-    result = register_string_option("twitchClientId", "", g_config_var_client_id, error);
+    ModResult result = register_string_option("twitchClientId", "", g_config_var_client_id, error);
     if (result != MOD_OK) {
         return result;
     }

@@ -70,12 +70,6 @@ inline void on_toggle_connection(ModContext*, void*) {
 inline ModResult build_twitch_config_tab(ModContext*, UiWindowHandle, const UiElementHandle left,
     const UiElementHandle right, void*, ModError*) {
     (void)right;
-    svc_ui->pane_add_section(mod_ctx, left, TWITCH_SECTION_NAME.data());
-    add_string(
-        left, TWITCH_USERNAME.data(), g_config_var_username, TWITCH_USERNAME_DESCRIPTION.data());
-    add_string(
-        left, TWITCH_USER_ID.data(), g_config_var_twitch_id, TWITCH_USER_ID_DESCRIPTION.data());
-
     svc_ui->pane_add_section(mod_ctx, left, ACTIONS_SECTION_NAME.data());
     add_toggle(left, ACTIONS_AUTO_START.data(), g_config_var_auto_start,
         ACTIONS_AUTO_START_DESCRIPTION.data());

@@ -23,6 +23,7 @@ That's a fish not a poisson.
 // websocket related
 inline constexpr std::string_view LAUNCH_WEBSOCKET_FAILED =
     "Configuration is not fully done, webSocket connection cannot start.";
+inline constexpr std::string_view GET_USER_ID_FAILED = "Failed to retrieve twitch user ID : ";
 inline constexpr std::string_view SESSION_WELCOME_FAILED =
     "Failed to established connection, we are not welcomed :c : ";
 inline constexpr std::string_view EVENT_SUBSCRIPTION_FAILED = "Failed to subscribe to ";
@@ -36,12 +37,6 @@ inline constexpr std::string_view REGISTER_CONFIG_VAR_FAILED =
 inline constexpr std::string_view TWITCH_LOADER_OPTIONS_BUTTON = "Configure Mod";
 inline constexpr std::string_view TWITCH_CONFIG_TAB = "Twitch config";
 inline constexpr std::string_view TWITCH_SECRETS_TAB = "Twitch secrets";
-
-inline constexpr std::string_view TWITCH_SECTION_NAME = "Configuration";
-inline constexpr std::string_view TWITCH_USERNAME = "Username";
-inline constexpr std::string_view TWITCH_USERNAME_DESCRIPTION = "Your twitch username";
-inline constexpr std::string_view TWITCH_USER_ID = "Twitch ID";
-inline constexpr std::string_view TWITCH_USER_ID_DESCRIPTION = "Your twitch id";
 
 inline constexpr std::string_view ACTIONS_SECTION_NAME = "Check actions";
 inline constexpr std::string_view ACTIONS_AUTO_START = "Auto start";

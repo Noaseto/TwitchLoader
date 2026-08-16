@@ -24,7 +24,7 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
         return result;
     }
 
-    // init mod view menu
+    // init mod panel menu
     UiModsPanelDesc ui_mods_panel_desc = UI_MODS_PANEL_DESC_INIT;
     ui_mods_panel_desc.build = build_main_panel;
     result = svc_ui->register_mods_panel(mod_ctx, &ui_mods_panel_desc);

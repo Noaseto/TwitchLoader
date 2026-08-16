@@ -37,16 +37,14 @@ struct TwitchSubscription {
 };
 }  // namespace
 
+// ---------------------------------------- public ----------------------------------------
+
 void WsClient::toggle_socket() {
     if (!m_running) {
-        // todo username unused, I'd rather have the twitch_id to be unused instead
         const std::string client_id = get_string_option(g_config_var_client_id);
         const std::string oauth = get_string_option(g_config_var_oauth);
-        const std::string username = get_string_option(g_config_var_username);
-        const std::string twitch_id = get_string_option(g_config_var_twitch_id);
-        if (!client_id.empty() && !oauth.empty() && !username.empty() && !twitch_id.empty()) {
-            start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(), client_id, oauth, username,
-                twitch_id);
+        if (!client_id.empty() && !oauth.empty()) {
+            start(TWITCH_WEBSOCKET_URL.data(), HTTPS_PORT.data(), client_id, oauth);
         } else {
             svc_log->error(mod_ctx, LAUNCH_WEBSOCKET_FAILED.data());
         }
@@ -75,6 +73,7 @@ bool WsClient::is_started() {
 }
 
 bool WsClient::try_pop_message(TwitchEvent& out) {
+    // todo rename, try pop, ça veut rien dire
     std::lock_guard<std::mutex> lock(m_mutex);
     if (m_messages.empty())
         return false;
@@ -87,14 +86,15 @@ int WsClient::get_messages_length() const {
     return m_messages.size();
 }
 
+// ---------------------------------------- private ----------------------------------------
+
 void WsClient::start(const std::string& host, const std::string& port, const std::string& client_id,
-    const std::string& oauth, const std::string& username, const std::string& user_id) {
+    const std::string& oauth) {
     if (!m_running) {
         m_running = true;
         svc_log->info(mod_ctx, LOG_START_WEBSOCKET.data());
-        m_thread = std::thread([this, host, port, client_id, oauth, username, user_id] {
-            run(host, port, client_id, oauth, username, user_id);
-        });
+        m_thread = std::thread(
+            [this, host, port, client_id, oauth] { run(host, port, client_id, oauth); });
     }
 }
 
@@ -102,23 +102,60 @@ void WsClient::push(const TwitchEventType type, const std::string& message) {
     std::lock_guard<std::mutex> lock(m_mutex);
     TwitchEvent twitch_event = {.struct_size = sizeof(TwitchEvent), .type = type, .data = NULL};
 
-    // this is needed for the mod communication to consummers
+    // this is needed for the mod communication to consumers
     char* copy = new char[message.size() + 1];
     std::memcpy(copy, message.c_str(), message.size() + 1);
     twitch_event.data = copy;
     m_messages.push(twitch_event);
 }
 
+std::string WsClient::get_user_id(const std::string& client_id, const std::string& oauth,
+    net::io_context& ioc, ssl::context& ctx, tcp::resolver& resolver) {
+    auto results = resolver.resolve(TWITCH_API_URL.data(), HTTPS_PORT.data());
+
+    ssl::stream<tcp::socket> stream{ioc, ctx};
+    net::connect(beast::get_lowest_layer(stream), results);
+    SSL_set_tlsext_host_name(stream.native_handle(), TWITCH_API_URL.data());
+    stream.handshake(ssl::stream_base::client);
+
+    http::request<http::string_body> request{
+        http::verb::get, TWITCH_API_USERS_ENDPOINT.data(), HTTP_VERSION};
+    request.set(http::field::host, TWITCH_API_URL.data());
+    request.set(http::field::authorization, TWITCH_API_AUTHORIZATION.data() + oauth);
+    request.set(TWITCH_API_CLIENT_ID.data(), client_id);
+    request.prepare_payload();
+
+    http::write(stream, request);
+
+    http::response<http::string_body> response;
+    beast::flat_buffer buffer;
+    http::read(stream, buffer, response);
+
+    beast::error_code ec;
+    stream.shutdown(ec);
+
+    if (response.result() != http::status::ok) {
+        throw std::runtime_error(GET_USER_ID_FAILED.data() + response.body());
+    }
+
+    json user_json = json::parse(response.body());
+    std::string user_id =
+        user_json.at(JSON_DATA.data()).front().at(JSON_ID.data()).get<std::string>();
+    return user_id;
+}
+
 void WsClient::run(const std::string& host, const std::string& port, const std::string& client_id,
-    const std::string& oauth, const std::string& username, const std::string& user_id) {
+    const std::string& oauth) {
     // todo split into several method, it feels like it could be, init, running, shutdown
     net::io_context ioc;
     ssl::context ctx{ssl::context::tlsv12_client};
     ctx.set_default_verify_paths();
     websocket::stream<ssl::stream<tcp::socket>> ws{ioc, ctx};
     try {
-        // first connection
         tcp::resolver resolver{ioc};
+        std::string user_id = get_user_id(client_id, oauth, ioc, ctx, resolver);
+
+        // first web socket connection
         auto results = resolver.resolve(host, port);
         net::connect(beast::get_lowest_layer(ws), results);
 
@@ -147,6 +184,7 @@ void WsClient::run(const std::string& host, const std::string& port, const std::
 
         // then we have 10s to subscribe to events with the payload id
         // see https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
+
         // TODO_2: allow users to subscribe to whatever they like in config file ? Extend the
         // service to add a method for consumers to describe what they wish to listen and only
         // subscribe to what is needed

@@ -1,5 +1,7 @@
 /*
 Here is a coffee or teacup as you wish c[_]
+
+This file contains both web socket and api constants
 */
 
 #pragma once
@@ -10,6 +12,7 @@ inline constexpr std::string_view TWITCH_WEBSOCKET_URL = "eventsub.wss.twitch.tv
 inline constexpr std::string_view HTTPS_PORT = "443";
 inline constexpr std::string_view HANDSHAKE_ENDPOINT = "/ws";
 inline constexpr std::string_view TWITCH_API_URL = "api.twitch.tv";
+inline constexpr std::string_view TWITCH_API_USERS_ENDPOINT = "/helix/users";
 inline constexpr std::string_view TWITCH_EVENT_SUBSCRIPTION_ENDPOINT =
     "/helix/eventsub/subscriptions";
 inline constexpr int HTTP_VERSION = 11;
@@ -18,6 +21,7 @@ inline constexpr std::string_view TWITCH_API_CONTENT_TYPE_JSON = "application/js
 inline constexpr std::string_view TWITCH_API_CLIENT_ID = "Client-Id";
 
 // Json Nodes
+inline constexpr std::string_view JSON_DATA = "data";
 inline constexpr std::string_view JSON_METADATA = "metadata";
 inline constexpr std::string_view JSON_MESSAGE_TYPE = "message_type";
 inline constexpr std::string_view JSON_PAYLOAD = "payload";
