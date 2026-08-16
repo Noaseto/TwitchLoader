@@ -11,7 +11,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FetchDusklight.cmake")
 add_subdirectory("${DUSKLIGHT_DIR}/sdk" dusklight-sdk EXCLUDE_FROM_ALL)
 
 add_mod(twitch_loader
-        SOURCES src/mod.cpp
+        SOURCES src/mod.cpp src/twitch/ws_client.cpp
         MOD_JSON mod.json
 )
 

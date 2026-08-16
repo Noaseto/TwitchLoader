@@ -13,7 +13,6 @@ IMPORT_SERVICE(LogService, svc_log);
 IMPORT_SERVICE(UiService, svc_ui);
 IMPORT_SERVICE(ConfigService, svc_config);
 
-WsClient g_ws;
 extern "C" {
 static std::vector<TwitchEvent> published_events;
 

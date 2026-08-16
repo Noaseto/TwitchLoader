@@ -8,6 +8,7 @@
 
 #include <string>
 #include "i18n.hpp"
+#include "mods/svc/config.h"
 
 // ----------------------- Register options -----------------------
 
