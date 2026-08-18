@@ -60,7 +60,11 @@ MOD_EXPORT ModResult mod_shutdown(ModError*) {
 
 // ------------------------- Service Related -------------------------
 // Service function(s) implementation, all of them are called by mod consumers
-// todo, should these be defined in a dedicated file as the sdk does
+// TODO should these be defined in a dedicated file as the sdk does
+
+// TODO allow users to subscribe to whatever they like via service method ? Extend the
+// service to add a method for consumers to describe what they wish to listen and adds
+// this to the subscribed events.
 
 static ModResult get_events(
     ModContext*, const TwitchEvent** out_events, uint32_t* out_event_count) {

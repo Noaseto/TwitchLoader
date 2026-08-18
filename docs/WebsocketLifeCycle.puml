@@ -9,8 +9,9 @@ participant twitchEvent as event
 
 ws->ws:starts thread
 activate ws
+' todo add client_id retrieval
 ws->event:eventsub.wss.twitch.tv
-event-->ws:welcmome_message\nWith a session ID
+event-->ws:welcome_message\nWith a session ID
 note over ws:we have 10s before\nsession ID becomes invalid
 
 loop on desired topics

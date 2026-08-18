@@ -3,7 +3,9 @@
 #include <atomic>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/context.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core/flat_buffer.hpp>
+#include <boost/beast/websocket/stream.hpp>
 #include <mutex>
 #include <queue>
 #include <string>
@@ -20,14 +22,20 @@ public:
     int get_messages_length() const;
 
 private:
-    void start(const std::string& host, const std::string& port, const std::string& client_id,
-        const std::string& oauth);
-    void push(TwitchEventType type, const std::string& message);
+    void start(const std::string& client_id, const std::string& oauth);
+    void push_message(TwitchEventType type, const std::string& message);
     std::string get_user_id(const std::string& client_id, const std::string& oauth,
         boost::asio::io_context& ioc, boost::asio::ssl::context& ctx,
         boost::asio::ip::tcp::resolver& resolver);
-    void run(const std::string& host, const std::string& port, const std::string& client_id,
-        const std::string& oauth);
+    void connect_and_subscribe(const std::string& client_id, const std::string& oauth,
+        boost::asio::io_context& ioc, boost::asio::ssl::context& ctx,
+        boost::beast::websocket::stream<
+            boost::asio::ssl::stream<boost::asio::basic_stream_socket<boost::asio::ip::tcp>>>& ws);
+    void running_loop(boost::beast::websocket::stream<
+        boost::asio::ssl::stream<boost::asio::basic_stream_socket<boost::asio::ip::tcp>>>& ws);
+    void shutdown(boost::beast::websocket::stream<
+        boost::asio::ssl::stream<boost::asio::basic_stream_socket<boost::asio::ip::tcp>>>& ws);
+    void run(const std::string& client_id, const std::string& oauth);
 
     std::atomic<bool> m_running{false};
     std::atomic<boost::asio::ip::tcp::socket*> m_socket_ptr{nullptr};
