@@ -47,8 +47,7 @@ inline constexpr std::string_view ACTIONS_TOGGLE_DESCRIPTION =
     "Starts or stops the Twitch-Dusklight connection";
 
 inline constexpr std::string_view TOGGLE_POPUP_TEXT_START = "Start the Twitch connection";
-inline constexpr std::string_view TOGGLE_POPUP_TEXT_STOP =
-    "Stop the Twitch connection (can take some time)";
+inline constexpr std::string_view TOGGLE_POPUP_TEXT_STOP = "Stop the Twitch connection";
 inline constexpr std::string_view TOGGLE_POPUP_BUTTON_START = "Start";
 inline constexpr std::string_view TOGGLE_POPUP_BUTTON_STOP = "Stop";
 inline constexpr std::string_view TOGGLE_POPUP_BUTTON_CANCEL = "Cancel";

@@ -5,7 +5,7 @@
 
 #include "config_var.hpp"
 #include "i18n.hpp"
-#include "twitch/ws_client.hpp"
+#include "twitch/ws_client2.hpp"
 
 inline UiWindowHandle g_controlsModConfig = 0;
 
@@ -47,19 +47,17 @@ inline void on_toggle_connection(ModContext*, void*) {
     UiDialogDesc desc = UI_DIALOG_DESC_INIT;
     desc.title = ACTIONS_TOGGLE.data();
     desc.body_rml =
-        g_ws.is_started() ? TOGGLE_POPUP_TEXT_STOP.data() : TOGGLE_POPUP_TEXT_START.data();
+        g_ws2.is_started() ? TOGGLE_POPUP_TEXT_STOP.data() : TOGGLE_POPUP_TEXT_START.data();
     const std::string toggle_text =
-        g_ws.is_started() ? TOGGLE_POPUP_BUTTON_STOP.data() : TOGGLE_POPUP_BUTTON_START.data();
+        g_ws2.is_started() ? TOGGLE_POPUP_BUTTON_STOP.data() : TOGGLE_POPUP_BUTTON_START.data();
     UiDialogHandle dialog_handle;
     desc.action_count = 2;
-    const UiDialogAction cancel_action = {.label = TOGGLE_POPUP_BUTTON_CANCEL.data(),
-        .on_pressed = [](ModContext*, UiDialogHandle, void*) {},
-        .user_data = NULL,
-        .keep_open = false};
-    const UiDialogAction toggle_action = {.label = toggle_text.c_str(),
-        .on_pressed = [](ModContext*, UiDialogHandle, void*) { g_ws.toggle_socket(); },
-        .user_data = NULL,
-        .keep_open = false};
+    UiDialogAction cancel_action = UI_DIALOG_ACTION_INIT;
+    cancel_action.label = TOGGLE_POPUP_BUTTON_CANCEL.data();
+    cancel_action.on_pressed = [](ModContext*, UiDialogHandle, void*) {};
+    UiDialogAction toggle_action = UI_DIALOG_ACTION_INIT;
+    toggle_action.label = toggle_text.c_str();
+    toggle_action.on_pressed = [](ModContext*, UiDialogHandle, void*) { g_ws2.toggle_socket(); };
     const UiDialogAction actions[] = {cancel_action, toggle_action};
 
     desc.actions = actions;

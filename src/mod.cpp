@@ -5,16 +5,18 @@
 #include "config_var.hpp"
 #include "i18n.hpp"
 #include "panel_management.hpp"
-#include "twitch/ws_client.hpp"
+#include "twitch/ws_client2.hpp"
+#include "twitch/ws_constant.hpp"
 #include "twitch_loader_service.h"
 
 DEFINE_MOD();
 IMPORT_SERVICE(LogService, svc_log);
 IMPORT_SERVICE(UiService, svc_ui);
 IMPORT_SERVICE(ConfigService, svc_config);
+IMPORT_SERVICE(HttpService, svc_http);
+IMPORT_SERVICE(WebSocketService, svc_websocket);
 
 extern "C" {
-static std::vector<TwitchEvent> published_events;
 
 MOD_EXPORT ModResult mod_initialize(ModError* error) {
     // set config var
@@ -33,7 +35,11 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
 
     // at startup, thread is not running, the toggle will launch the start
     if (get_bool_option(g_config_var_auto_start, false)) {
-        g_ws.toggle_socket();
+        result = g_ws2.toggle_socket();
+        if (result != MOD_OK) {
+            svc_log->error(mod_ctx, "Failed to establish a connection");
+            return result;
+        }
     }
 
     svc_log->info(mod_ctx, LOG_MOD_INIT.data());
@@ -41,44 +47,30 @@ MOD_EXPORT ModResult mod_initialize(ModError* error) {
 }
 
 MOD_EXPORT ModResult mod_update(ModError*) {
-    // Clear the previous frame's events
-    published_events.clear();
-    published_events.reserve(g_ws.get_messages_length());
-
-    TwitchEvent twitch_event;
-    while (g_ws.try_pop_message(twitch_event)) {
-        published_events.push_back(twitch_event);
+    if (g_ws2.is_started()) {
+        if (!g_ws2.is_subscribed()) {
+            if (g_ws2.get_user_id().empty()) {
+                g_ws2.request_user_id();
+            } else {
+                TwitchSubscription topic = {.event_type = TwitchEventType::ChatMessage,
+                    .type = SUBSCRIPTION_CHAT_MESSAGE.data(),
+                    .version = SUBSCRIPTION_CHAT_MESSAGE_VERSION.data()};
+                g_ws2.register_topic(topic);
+            }
+        }
     }
+    // Then, we always do websocket polling
+    g_ws2.poll();
+
     return MOD_OK;
 }
 
 MOD_EXPORT ModResult mod_shutdown(ModError*) {
-    g_ws.stop();
-    svc_log->info(mod_ctx, LOG_MOD_STOP.data());
-    return MOD_OK;
-}
-
-// ------------------------- Service Related -------------------------
-// Service function(s) implementation, all of them are called by mod consumers
-// TODO should these be defined in a dedicated file as the sdk does
-
-// TODO allow users to subscribe to whatever they like via service method ? Extend the
-// service to add a method for consumers to describe what they wish to listen and adds
-// this to the subscribed events.
-
-static ModResult get_events(
-    ModContext*, const TwitchEvent** out_events, uint32_t* out_event_count) {
-    if (out_events == nullptr || out_event_count == nullptr) {
-        return MOD_INVALID_ARGUMENT;
+    ModResult result = MOD_OK;
+    if (g_ws2.is_started()) {
+        result = g_ws2.toggle_socket();
     }
-    *out_events = published_events.empty() ? nullptr : published_events.data();
-    *out_event_count = static_cast<uint32_t>(published_events.size());
-    return MOD_OK;
+    svc_log->info(mod_ctx, LOG_MOD_STOP.data());
+    return result;
 }
-
-constexpr TwitchLoaderService g_service{
-    .header = SERVICE_HEADER(TwitchLoaderService, MY_MOD_SERVICE_MAJOR, MY_MOD_SERVICE_MINOR),
-    .get_events = get_events,
-};
-EXPORT_SERVICE(g_service);
 }
